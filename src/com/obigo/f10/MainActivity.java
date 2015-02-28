@@ -4,6 +4,7 @@ import android.animation.Animator;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
+import android.util.Log;
 import android.view.View;
 import android.view.View.OnLongClickListener;
 import android.widget.FrameLayout;
@@ -17,6 +18,7 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
 
     private static final int APPLIST_MOVE_X = 400;
     private static final int SETTING_MOVE_Y = 200;
+    private static final int DELZONE_MOVE_Y = 40;
 
     private DragLayer mDragLayer;
     private Workspace mWorkspace;
@@ -35,14 +37,13 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
         mAppList    = (FrameLayout) mDragLayer.findViewById(R.id.applist);
         mSetting    = (FrameLayout) mDragLayer.findViewById(R.id.setting);
 
-//        mWorkspace.setDragger(mDragLayer);
+        mWorkspace.setDragger(mDragLayer);
         mWorkspace.setMainActivity(this);
-//        mWorkspace.setOnLongClickListener(this);
-//
-//        mDeleteZone.setDragController(mDragLayer);
-//        mDragLayer.setDragScoller(mWorkspace);
-//        mDragLayer.setDragListener(mDeleteZone);
+        mWorkspace.setOnLongClickListener(this);
 
+        mDeleteZone.setDragController(mDragLayer);
+        mDragLayer.setDragScoller(mWorkspace);
+        mDragLayer.setDragListener(mDeleteZone);
     }
 
     @Override
@@ -58,6 +59,16 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
 
     @Override
     public boolean onLongClick(View v) {
+        Log.d(TAG, "on long click");
+
+        showDeleteZone();
+
+        switch (v.getId()) {
+        case R.id.workspace:
+            Log.d(TAG, "workspace long click");
+            break;
+        }
+
         return false;
     }
 
@@ -76,13 +87,22 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
 
     ////////////////////////////////////////////////////////////////////////////////////
     //
-    // MENU ANIMATION
+    // HIDE OBJECT ANIMATION
     //
     ////////////////////////////////////////////////////////////////////////////////////
 
     public boolean isWorkspaceLocked() {
         if (mAppList.getVisibility() == View.VISIBLE ||
-            mSetting.getVisibility() == View.VISIBLE) {
+            mSetting.getVisibility() == View.VISIBLE ||
+            mDeleteZone.getVisibility() == View.VISIBLE) {
+            return true;
+        }
+
+        return false;
+    }
+
+    public boolean isDeleteZone() {
+        if (mDeleteZone.getVisibility() == View.VISIBLE) {
             return true;
         }
 
@@ -117,6 +137,22 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
             @Override
             public void onAnimationEnd(Animator animation) {
                 mSetting.setVisibility(View.INVISIBLE);
+            }
+        });
+    }
+
+    public void showDeleteZone() {
+        if (mDeleteZone.getVisibility() == View.INVISIBLE) {
+            mDeleteZone.setVisibility(View.VISIBLE);
+            Transition.startY(mDeleteZone, DELZONE_MOVE_Y, null);
+        }
+    }
+
+    public void hideDeleteZone() {
+        Transition.startY(mDeleteZone, DELZONE_MOVE_Y * -1, new AnimatorEndListener() {
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                mDeleteZone.setVisibility(View.INVISIBLE);
             }
         });
     }

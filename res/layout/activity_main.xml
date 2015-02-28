@@ -53,6 +53,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="top|center_horizontal"
         android:paddingTop="20dp"
+        android:layout_marginTop="-40dp"
         android:scaleType="center"
         android:src="@drawable/delete_zone_selector"
         android:visibility="invisible" />

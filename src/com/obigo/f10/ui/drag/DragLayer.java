@@ -256,10 +256,6 @@ public class DragLayer extends FrameLayout implements IDragController {
 
     @Override
     protected void dispatchDraw(Canvas canvas) {
-//        if (WebbyConstants.CIRCULAR_LOOP) {
-//            drawAlphaBackground(canvas);
-//        }
-
         super.dispatchDraw(canvas);
 
         if (mDragging && mDragBitmap != null) {
@@ -611,15 +607,6 @@ public class DragLayer extends FrameLayout implements IDragController {
                     mDragScroller.scrollRight();
                 }
 
-                // WebLauncher
-                // additions
-//                else if (mDirection == SCROLL_UP) {
-//                    mDragScroller.scrollUp();
-//                } else if (mDirection == SCROLL_DOWN) {
-//                    mDragScroller.scrollDown();
-//                }
-                // WebLauncher(end)
-
                 mScrollState = SCROLL_OUTSIDE_ZONE;
             }
         }
@@ -656,113 +643,5 @@ public class DragLayer extends FrameLayout implements IDragController {
             int textureLeft, int textureTop, int textureWidth, int textureHeight,
             IDragSource source, Object dragInfo, int dragAction) {
     }
-
-    ////////////////////////////////////////////////////////////////////////////////////
-    //
-    // circular loop
-    //
-    ////////////////////////////////////////////////////////////////////////////////////
-
-    // circular loop 형태로 cell 을 진행시 wallpaper 도 동일하게 circular 형태로
-    // 되어야 하므로 이를 지원하기 위해서 dispatchDraw 에서 bitmap 을 그리도록 한다.
-    // 가장 처음 cell 과 마지막 cell 을 겹친 후 마지막 cell 을 fade 시키도록 한다.
-
-
-//    private Launcher launcher = null;
-    private boolean previewArea = false;
-
-    public static int alpha = 255;
-    private static boolean showBackground = false;
-    private static final String TAG = "DragLayer";
-
-
-//    private void drawAlphaBackground(Canvas canvas) {
-//        if (launcher == null) {
-//            return ;
-//        }
-//
-//        if (previewArea) {
-//            // wallpaper 의 전체 크기는 960 이다.
-//            // 한 cell 의 이동 값은 480 / cell count 값이다.
-//            Drawable wp = WallpaperManager.getInstance(mContext).getDrawable();
-//            final int count = launcher.getWorkspace().getChildCount() - 1;
-//            final int top = getHeight() - launcher.getDefaultHeight();
-//            final int curr = launcher.getWorkspace().getCurrentScreen();
-//            final int offset = (wp.getIntrinsicWidth() - getWidth()) / count * curr;
-//
-//            wp.setAlpha(255);
-//            wp.setBounds(-offset, top, wp.getIntrinsicWidth() - offset, getHeight());
-//            wp.draw(canvas);
-//
-//            previewArea = false;
-//        } else {
-//            if (!showBackground) {
-//                return ;
-//            }
-//
-//            Drawable wp = WallpaperManager.getInstance(mContext).getDrawable();
-//            final int top = getHeight() - launcher.getDefaultHeight();
-//
-//            wp.setBounds(0, top, wp.getIntrinsicWidth(), getHeight());
-//            wp.setAlpha(255);
-//            wp.draw(canvas);
-//
-//            //Log.d(TAG, "alpha " + alpha);
-//
-//            wp.setBounds(-wp.getIntrinsicWidth() + getWidth(), top, getWidth(), getHeight());
-//            wp.setAlpha(alpha);
-//            wp.draw(canvas);
-//        }
-//    }
-
-//    public void setLauncher(Launcher l) {
-//        launcher = l;
-//    }
-
-    public static void setAlpha(float x, final float width) {
-        if (x == 0) {
-            return ;
-        }
-
-        boolean right = false;
-        if (x < 0) {
-            x *= -1f;
-            right = true;
-        }
-
-        float percent = x / width * 100f;
-        float alp = percent * 255 / 100f;
-
-        if (right) {
-            alpha = (int)alp;
-        } else {
-            alpha = 255 - (int)alp;
-        }
-    }
-
-    public static boolean getBackgoundValue() {
-        return showBackground;
-    }
-
-    public static synchronized void showBackground(boolean res) {
-        showBackground = res;
-
-//        if (Option.DEBUG_WEBBY_DRAGLAYER) {
-//            if (showBackground) {
-//                Log.d(TAG, "showBackground " + showBackground);
-//            } else {
-//                Log.d(TAG, "showBackground " + showBackground);
-//            }
-//        }
-
-        if (!res) {
-            alpha = 255;
-        }
-    }
-
-    public void setPreviewAreaBackground() {
-        previewArea = true;
-    }
 }
-
 

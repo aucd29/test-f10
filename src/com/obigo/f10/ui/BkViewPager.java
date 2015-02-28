@@ -42,10 +42,7 @@ public class BkViewPager extends ViewGroup {
     private final static int TOUCH_STATE_SCROLLING = 1;
 
     private int mTouchState = TOUCH_STATE_REST;
-
-    private OnLongClickListener mLongClickListener;
-
-    private boolean mAllowLongPress = true;
+    protected boolean mAllowLongPress = true;
 
     protected int mTouchSlop;
     protected int mMaximumVelocity;
@@ -319,15 +316,14 @@ public class BkViewPager extends ViewGroup {
             mLastMotionY = y;
             mActivePointerId = ev.getPointerId(0);
             mAllowLongPress = true;
-//            mTouchState = mScroller.isFinished() ? TOUCH_STATE_REST : TOUCH_STATE_SCROLLING;
+            mTouchState = mScroller.isFinished() ? TOUCH_STATE_REST : TOUCH_STATE_SCROLLING;
             // fixed burke
-            mTouchState = TOUCH_STATE_SCROLLING;
+//            mTouchState = TOUCH_STATE_SCROLLING;
             break;
         }
 
         case MotionEvent.ACTION_CANCEL:
         case MotionEvent.ACTION_UP:
-
             if (mTouchState != TOUCH_STATE_SCROLLING) {
                 final CellLayout currentScreen = (CellLayout)getChildAt(mCurrentScreen);
 //                if (!currentScreen.lastDownOnOccupiedCell()) {
@@ -351,7 +347,6 @@ public class BkViewPager extends ViewGroup {
                 mVelocityTracker.recycle();
                 mVelocityTracker = null;
             }
-
             break;
 
         case MotionEvent.ACTION_POINTER_UP:
@@ -417,7 +412,7 @@ public class BkViewPager extends ViewGroup {
                 final float x = ev.getX(pointerIndex);
                 final float deltaX = mLastMotionX - x;
 
-                Log.d(TAG, "mLastMotionY " + mLastMotionY);
+//                Log.d(TAG, "touch mLastMotionY " + mLastMotionY);
 
                 if (mEdgeEventMode && mLastMotionX < 40.0f) {
                     onEdgeEventMode(EDGE_EVENT_LEFT);

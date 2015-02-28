@@ -7,27 +7,25 @@ package com.obigo.f10;
 
 import android.content.Context;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 
 import com.obigo.f10.ui.BkViewPager;
+import com.obigo.f10.ui.drag.DragScroller;
+import com.obigo.f10.ui.drag.DropTarget;
 import com.obigo.f10.ui.drag.IDragController;
+import com.obigo.f10.ui.drag.IDragSource;
 
-//public class Workspace extends BkViewPager implements DropTarget, IDragSource , DragScroller {
-public class Workspace extends BkViewPager {
+public class Workspace extends BkViewPager implements DropTarget, IDragSource , DragScroller {
     private static final String TAG = "Workspace";
 
     private MainActivity mActivity;
     private int mMaxCellCount = 10;
 
     private IDragController mDragger;
-
-//    public Workspace(Context context) {
-//        super(context);
-//        initWorkspace();
-//        initLayout();
-//    }
+    private OnLongClickListener mLongClickListener;
 
     public Workspace(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -111,12 +109,36 @@ public class Workspace extends BkViewPager {
     }
 
     @Override
+    public boolean onInterceptTouchEvent(MotionEvent ev) {
+        final int action = ev.getAction();
+        switch (action & MotionEvent.ACTION_MASK) {
+        case MotionEvent.ACTION_UP:
+            if (mActivity != null && mActivity.isDeleteZone()) {
+              mActivity.hideDeleteZone();
+            }
+            break;
+        }
+
+        return super.onInterceptTouchEvent(ev);
+    }
+
+    @Override
     public boolean onTouchEvent(MotionEvent ev) {
         if (mActivity != null && mActivity.isWorkspaceLocked()) {
             return false;
         }
 
         return super.onTouchEvent(ev);
+    }
+
+    @Override
+    public void setOnLongClickListener(OnLongClickListener l) {
+        mLongClickListener = l;
+
+        final int count = getChildCount();
+        for (int i = 0; i < count; i++) {
+            getChildAt(i).setOnLongClickListener(l);
+        }
     }
 
     ////////////////////////////////////////////////////////////////////////////////////
@@ -128,39 +150,39 @@ public class Workspace extends BkViewPager {
     public void setDragger(IDragController dragger) {
         mDragger = dragger;
     }
-//
-//    @Override
-//    public void scrollLeft() {
-//        Log.d(TAG, "scroll left");
-//    }
-//
-//    @Override
-//    public void scrollRight() {
-//        Log.d(TAG, "scroll right");
-//    }
-//
-//    @Override
-//    public void onDropCompleted(View target, boolean success) {
-//    }
-//
-//    @Override
-//    public void onDrop(IDragSource source, int x, int y, int xOffset, int yOffset, Object dragInfo) {
-//    }
-//
-//    @Override
-//    public void onDragEnter(IDragSource source, int x, int y, int xOffset, int yOffset, Object dragInfo) {
-//    }
-//
-//    @Override
-//    public void onDragOver(IDragSource source, int x, int y, int xOffset, int yOffset, Object dragInfo) {
-//    }
-//
-//    @Override
-//    public void onDragExit(IDragSource source, int x, int y, int xOffset, int yOffset, Object dragInfo) {
-//    }
-//
-//    @Override
-//    public boolean acceptDrop(IDragSource source, int x, int y, int xOffset, int yOffset, Object dragInfo) {
-//        return false;
-//    }
+
+    @Override
+    public void scrollLeft() {
+        Log.d(TAG, "scroll left");
+    }
+
+    @Override
+    public void scrollRight() {
+        Log.d(TAG, "scroll right");
+    }
+
+    @Override
+    public void onDropCompleted(View target, boolean success) {
+    }
+
+    @Override
+    public void onDrop(IDragSource source, int x, int y, int xOffset, int yOffset, Object dragInfo) {
+    }
+
+    @Override
+    public void onDragEnter(IDragSource source, int x, int y, int xOffset, int yOffset, Object dragInfo) {
+    }
+
+    @Override
+    public void onDragOver(IDragSource source, int x, int y, int xOffset, int yOffset, Object dragInfo) {
+    }
+
+    @Override
+    public void onDragExit(IDragSource source, int x, int y, int xOffset, int yOffset, Object dragInfo) {
+    }
+
+    @Override
+    public boolean acceptDrop(IDragSource source, int x, int y, int xOffset, int yOffset, Object dragInfo) {
+        return false;
+    }
 }

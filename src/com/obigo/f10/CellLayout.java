@@ -3,6 +3,7 @@ package com.obigo.f10;
 import android.content.Context;
 import android.util.AttributeSet;
 import android.util.Log;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -24,6 +25,8 @@ public class CellLayout extends ViewGroup {
         super(context, attrs, defStyle);
 
 //        setAlwaysDrawnWithCacheEnabled(false);
+        setFocusable(true);
+        setFocusableInTouchMode(true);
     }
 
     protected void initLayout() {
@@ -138,22 +141,38 @@ public class CellLayout extends ViewGroup {
     }
 
     @Override
-    public boolean onInterceptTouchEvent(android.view.MotionEvent ev) {
-        return true;
-//        final int action = ev.getAction();
-//
-//        switch (action) {
-//        case MotionEvent.ACTION_MOVE:
-//            return true;
-//        }
-//
-//        return super.onInterceptTouchEvent(ev);
+    public boolean onInterceptTouchEvent(MotionEvent ev) {
+//        return true;
+        final int action = ev.getAction();
+
+        switch (action) {
+        case MotionEvent.ACTION_MOVE:
+            return true;
+        case MotionEvent.ACTION_DOWN:
+//            Log.d(TAG, "    @@ inter down");
+            break;
+        case MotionEvent.ACTION_UP:
+//            Log.d(TAG, "    @@ inter up");
+            break;
+        }
+
+        return super.onInterceptTouchEvent(ev);
     }
 
-//    @Override
-//    public boolean onTouchEvent(MotionEvent event) {
-//        return true;
-//    }
+    @Override
+    public boolean onTouchEvent(MotionEvent ev) {
+        final int action = ev.getAction();
+        switch (action) {
+        case MotionEvent.ACTION_DOWN:
+//            Log.d(TAG, "    @@ touch down");
+            break;
+        case MotionEvent.ACTION_UP:
+//            Log.d(TAG, "    @@ touch up");
+            break;
+        }
+
+        return super.onTouchEvent(ev);
+    }
 
     public void setHalfMode(boolean half) {
         mHalfMode = half;
