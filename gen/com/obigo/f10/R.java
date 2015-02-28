@@ -34,7 +34,9 @@ public final class R {
         public static final int trashcan_hover=0x7f020006;
     }
     public static final class id {
-        public static final int workspace=0x7f0a0000;
+        public static final int delete_zone=0x7f0a0002;
+        public static final int drag_layer=0x7f0a0000;
+        public static final int workspace=0x7f0a0001;
     }
     public static final class layout {
         public static final int activity_main=0x7f030000;

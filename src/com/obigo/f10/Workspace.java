@@ -18,7 +18,7 @@ public class Workspace extends BkViewPager {
     private static final String TAG = "Workspace";
 
     private MainActivity mActivity;
-    private int mMaxCellCount = 5;
+    private int mMaxCellCount = 10;
 
     private IDragController mDragger;
 
@@ -40,12 +40,14 @@ public class Workspace extends BkViewPager {
 
     private void initLayout() {
         setHapticFeedbackEnabled(false);
+        setChildWidth(true);
+        setBeastSwipeMode(true);
 
         for (int i=0; i<mMaxCellCount; ++i) {
             View view = LayoutInflater.from(getContext()).inflate(R.layout.workspace_screen, this, false);
 
             if (view instanceof CellLayout) {
-//                ((CellLayout) view).setHalfMode(true);
+                ((CellLayout) view).setHalfMode(true);
             }
 
 //            WebView view = new WebView(getContext());
@@ -53,7 +55,8 @@ public class Workspace extends BkViewPager {
 //            view.setVerticalScrollBarEnabled(false);
 //            view.setHorizontalScrollBarEnabled(false);
 
-            switch (i) {
+            int x = i % 5;
+            switch (x) {
             case 0:
                 view.setBackgroundColor(0x7fff0000);
                 break;
@@ -86,6 +89,8 @@ public class Workspace extends BkViewPager {
     public void setMainActivity(MainActivity activity) {
         mActivity = activity;
     }
+
+
 
     ////////////////////////////////////////////////////////////////////////////////////
     //
