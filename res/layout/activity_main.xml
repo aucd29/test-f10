@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- <com.obigo.f10.ui.drag.DragLayer xmlns:android="http://schemas.android.com/apk/res/android" -->
+<!--     xmlns:launcher="http://schemas.android.com/apk/res/com.obigo.res" -->
+<!--     android:id="@+id/drag_layer" -->
+<!--     android:layout_width="match_parent" -->
+<!--     android:layout_height="match_parent" > -->
+
+    <com.obigo.f10.Workspace
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/workspace"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+<!--     <com.obigo.f10.DeleteZone -->
+<!--         android:id="@+id/delete_zone" -->
+<!--         android:layout_width="wrap_content" -->
+<!--         android:layout_height="wrap_content" -->
+<!--         android:layout_gravity="top|center_horizontal" -->
+<!--         android:paddingTop="20dp" -->
+<!--         android:scaleType="center" -->
+<!--         android:src="@drawable/delete_zone_selector" -->
+<!--         android:visibility="invisible" /> -->
+
+<!-- </com.obigo.f10.ui.drag.DragLayer> -->
