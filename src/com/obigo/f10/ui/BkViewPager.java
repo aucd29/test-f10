@@ -35,8 +35,8 @@ public class BkViewPager extends ViewGroup {
     private Scroller mScroller;
     protected VelocityTracker mVelocityTracker;
 
-    private float mLastMotionX;
-    private float mLastMotionY;
+    protected float mLastMotionX;
+    protected float mLastMotionY;
 
     private final static int TOUCH_STATE_REST = 0;
     private final static int TOUCH_STATE_SCROLLING = 1;
@@ -47,12 +47,12 @@ public class BkViewPager extends ViewGroup {
 
     private boolean mAllowLongPress = true;
 
-    private int mTouchSlop;
-    private int mMaximumVelocity;
+    protected int mTouchSlop;
+    protected int mMaximumVelocity;
 
     private static final int INVALID_POINTER = -1;
 
-    private int mActivePointerId = INVALID_POINTER;
+    protected int mActivePointerId = INVALID_POINTER;
     private static final float NANOTIME_DIV = 1000000000.0f;
     private static final float SMOOTHING_SPEED = 0.75f;
     private static final float SMOOTHING_CONSTANT = (float) (0.016 / Math.log(SMOOTHING_SPEED));
@@ -66,6 +66,11 @@ public class BkViewPager extends ViewGroup {
 
     private boolean mChildWidth = false;
     private boolean mBeastMode = false;
+    private boolean mEdgeEventMode = false;
+
+    private int mEdgePos = 0;
+    public static final int EDGE_EVENT_LEFT = 1;
+    public static final int EDGE_EVENT_TOP = 2;
 
     private static class WorkspaceOvershootInterpolator implements Interpolator {
         private static final float DEFAULT_TENSION = 0.0f; //1.3f; // modified by burke
@@ -314,7 +319,6 @@ public class BkViewPager extends ViewGroup {
             mLastMotionY = y;
             mActivePointerId = ev.getPointerId(0);
             mAllowLongPress = true;
-
 //            mTouchState = mScroller.isFinished() ? TOUCH_STATE_REST : TOUCH_STATE_SCROLLING;
             // fixed burke
             mTouchState = TOUCH_STATE_SCROLLING;
@@ -412,26 +416,37 @@ public class BkViewPager extends ViewGroup {
                 final int pointerIndex = ev.findPointerIndex(mActivePointerId);
                 final float x = ev.getX(pointerIndex);
                 final float deltaX = mLastMotionX - x;
-                mLastMotionX = x;
 
-                if (deltaX < 0) {
-                    if (mTouchX > 0) {
-                        mTouchX += Math.max(-mTouchX, deltaX);
-                        mSmoothingTime = System.nanoTime() / NANOTIME_DIV;
-                        invalidate();
-                    }
-                } else if (deltaX > 0) {
-                    final float availableToScroll = getChildAt(getChildCount() - 1).getRight() - mTouchX - getWidth();
-                    if (availableToScroll > 0) {
-                        mTouchX += Math.min(availableToScroll, deltaX);
-                        mSmoothingTime = System.nanoTime() / NANOTIME_DIV;
-                        invalidate();
-                    }
+                Log.d(TAG, "mLastMotionY " + mLastMotionY);
+
+                if (mEdgeEventMode && mLastMotionX < 40.0f) {
+                    onEdgeEventMode(EDGE_EVENT_LEFT);
+                } else if (mEdgeEventMode && mLastMotionY < 40.0f) {
+                    Log.d(TAG, "edge event top");
+                    onEdgeEventMode(EDGE_EVENT_TOP);
                 } else {
-                    awakenScrollBars();
+                    mLastMotionX = x;
+
+                    if (deltaX < 0) {
+                        if (mTouchX > 0) {
+                            mTouchX += Math.max(-mTouchX, deltaX);
+                            mSmoothingTime = System.nanoTime() / NANOTIME_DIV;
+                            invalidate();
+                        }
+                    } else if (deltaX > 0) {
+                        final float availableToScroll = getChildAt(getChildCount() - 1).getRight() - mTouchX - getWidth();
+                        if (availableToScroll > 0) {
+                            mTouchX += Math.min(availableToScroll, deltaX);
+                            mSmoothingTime = System.nanoTime() / NANOTIME_DIV;
+                            invalidate();
+                        }
+                    } else {
+                        awakenScrollBars();
+                    }
                 }
             }
             break;
+
         case MotionEvent.ACTION_UP:
             if (mTouchState == TOUCH_STATE_SCROLLING) {
                 final VelocityTracker velocityTracker = mVelocityTracker;
@@ -549,7 +564,7 @@ public class BkViewPager extends ViewGroup {
     }
 
     public void snapToDestination() {
-        Log.d(TAG, "count child " + getChildCount());
+//        Log.d(TAG, "count child " + getChildCount());
         snapToScreen(getChildCount() - 2, 0, false);
     }
 
@@ -638,5 +653,13 @@ public class BkViewPager extends ViewGroup {
 
     public void setBeastSwipeMode(boolean beastMode) {
         mBeastMode = beastMode;
+    }
+
+    public void setEdgeEventMode(boolean edgeMode) {
+        mEdgeEventMode = edgeMode;
+    }
+
+    public void onEdgeEventMode(int mode) {
+        Log.d(TAG, "@@ EDGE EVENT CALLED " + mode);
     }
 }

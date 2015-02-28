@@ -8,6 +8,7 @@ package com.obigo.f10;
 import android.content.Context;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 
 import com.obigo.f10.ui.BkViewPager;
@@ -42,6 +43,7 @@ public class Workspace extends BkViewPager {
         setHapticFeedbackEnabled(false);
         setChildWidth(true);
         setBeastSwipeMode(true);
+        setEdgeEventMode(true);
 
         for (int i=0; i<mMaxCellCount; ++i) {
             View view = LayoutInflater.from(getContext()).inflate(R.layout.workspace_screen, this, false);
@@ -90,7 +92,32 @@ public class Workspace extends BkViewPager {
         mActivity = activity;
     }
 
+    @Override
+    public void onEdgeEventMode(int mode) {
+        if (mActivity != null) {
+            switch (mode) {
+            case EDGE_EVENT_LEFT:
+                mActivity.showAppList();
+                break;
 
+            case EDGE_EVENT_TOP:
+                mActivity.showSettingMenu();
+                break;
+
+            default:
+                break;
+            }
+        }
+    }
+
+    @Override
+    public boolean onTouchEvent(MotionEvent ev) {
+        if (mActivity != null && mActivity.isWorkspaceLocked()) {
+            return false;
+        }
+
+        return super.onTouchEvent(ev);
+    }
 
     ////////////////////////////////////////////////////////////////////////////////////
     //

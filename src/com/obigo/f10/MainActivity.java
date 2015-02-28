@@ -1,21 +1,28 @@
 package com.obigo.f10;
 
+import android.animation.Animator;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
-import android.util.Log;
-import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnLongClickListener;
+import android.widget.FrameLayout;
 
+import com.obigo.f10.ui.ani.AnimatorEndListener;
+import com.obigo.f10.ui.ani.Transition;
 import com.obigo.f10.ui.drag.DragLayer;
 
 public class MainActivity extends FragmentActivity implements View.OnClickListener, OnLongClickListener{
     private static final String TAG = "MainActivity";
 
+    private static final int APPLIST_MOVE_X = 400;
+    private static final int SETTING_MOVE_Y = 200;
+
     private DragLayer mDragLayer;
     private Workspace mWorkspace;
     private DeleteZone mDeleteZone;
+    private FrameLayout mAppList;
+    private FrameLayout mSetting;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -25,14 +32,17 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
         mDragLayer  = (DragLayer) findViewById(R.id.drag_layer);
         mWorkspace  = (Workspace) mDragLayer.findViewById(R.id.workspace);
         mDeleteZone = (DeleteZone) mDragLayer.findViewById(R.id.delete_zone);
+        mAppList    = (FrameLayout) mDragLayer.findViewById(R.id.applist);
+        mSetting    = (FrameLayout) mDragLayer.findViewById(R.id.setting);
 
 //        mWorkspace.setDragger(mDragLayer);
-//        mWorkspace.setMainActivity(this);
+        mWorkspace.setMainActivity(this);
 //        mWorkspace.setOnLongClickListener(this);
 //
 //        mDeleteZone.setDragController(mDragLayer);
 //        mDragLayer.setDragScoller(mWorkspace);
 //        mDragLayer.setDragListener(mDeleteZone);
+
     }
 
     @Override
@@ -47,16 +57,6 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
     }
 
     @Override
-    public boolean onKeyDown(int keyCode, KeyEvent event) {
-        switch (keyCode) {
-        case KeyEvent.KEYCODE_HOME:
-            Log.d(TAG, "@@ home key");
-            break;
-        }
-        return super.onKeyDown(keyCode, event);
-    }
-
-    @Override
     public boolean onLongClick(View v) {
         return false;
     }
@@ -65,9 +65,62 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
     public void onClick(View v) {
     }
 
+    @Override
+    public void onBackPressed() {
+        if (mAppList.getVisibility() == View.VISIBLE) {
+            hideAppList();
+        } else if (mSetting.getVisibility() == View.VISIBLE) {
+            hideSettingMenu();
+        }
+    }
+
+    ////////////////////////////////////////////////////////////////////////////////////
+    //
+    // MENU ANIMATION
+    //
+    ////////////////////////////////////////////////////////////////////////////////////
+
     public boolean isWorkspaceLocked() {
+        if (mAppList.getVisibility() == View.VISIBLE ||
+            mSetting.getVisibility() == View.VISIBLE) {
+            return true;
+        }
+
         return false;
     }
+
+    public void showAppList() {
+        if (mAppList.getVisibility() == View.INVISIBLE) {
+            mAppList.setVisibility(View.VISIBLE);
+            Transition.startX(mAppList, APPLIST_MOVE_X, null);
+        }
+    }
+
+    public void hideAppList() {
+        Transition.startX(mAppList, APPLIST_MOVE_X * -1, new AnimatorEndListener() {
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                mAppList.setVisibility(View.INVISIBLE);
+            }
+        });
+    }
+
+    public void showSettingMenu() {
+        if (mSetting.getVisibility() == View.INVISIBLE) {
+            mSetting.setVisibility(View.VISIBLE);
+            Transition.startY(mSetting, SETTING_MOVE_Y, null);
+        }
+    }
+
+    public void hideSettingMenu() {
+        Transition.startY(mSetting, SETTING_MOVE_Y * -1, new AnimatorEndListener() {
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                mSetting.setVisibility(View.INVISIBLE);
+            }
+        });
+    }
+
 
     /*@Override
     public boolean onCreateOptionsMenu(Menu menu) {
