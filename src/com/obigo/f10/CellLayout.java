@@ -150,29 +150,33 @@ public class CellLayout extends ViewGroup {
             return true;
         case MotionEvent.ACTION_DOWN:
 //            Log.d(TAG, "    @@ inter down");
+//            super.onInterceptTouchEvent(ev);
             break;
         case MotionEvent.ACTION_UP:
 //            Log.d(TAG, "    @@ inter up");
+//            super.onInterceptTouchEvent(ev);
             break;
         }
 
         return super.onInterceptTouchEvent(ev);
     }
 
-    @Override
-    public boolean onTouchEvent(MotionEvent ev) {
-        final int action = ev.getAction();
-        switch (action) {
-        case MotionEvent.ACTION_DOWN:
-//            Log.d(TAG, "    @@ touch down");
-            break;
-        case MotionEvent.ACTION_UP:
-//            Log.d(TAG, "    @@ touch up");
-            break;
-        }
-
-        return super.onTouchEvent(ev);
-    }
+//    @Override
+//    public boolean onTouchEvent(MotionEvent ev) {
+//        final int action = ev.getAction();
+//        switch (action) {
+//        case MotionEvent.ACTION_DOWN:
+////            Log.d(TAG, "    @@ touch down");
+//            break;
+//        case MotionEvent.ACTION_UP:
+////            Log.d(TAG, "    @@ touch up");
+//            break;
+//
+//
+//        }
+//
+//        return super.onTouchEvent(ev);
+//    }
 
     public void setHalfMode(boolean half) {
         mHalfMode = half;

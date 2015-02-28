@@ -52,7 +52,13 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
 
         if (Intent.ACTION_MAIN.equals(intent.getAction())) {
             if ((intent.getFlags() & Intent.FLAG_ACTIVITY_BROUGHT_TO_FRONT) != Intent.FLAG_ACTIVITY_BROUGHT_TO_FRONT) {
-                mWorkspace.snapToScreen(0);
+                if (mAppList.getVisibility() == View.VISIBLE) {
+                    hideAppList();
+                } else if (mSetting.getVisibility() == View.VISIBLE) {
+                    hideSettingMenu();
+                } else {
+                    mWorkspace.snapToScreen(0);
+                }
             }
         }
     }

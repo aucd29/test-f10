@@ -65,7 +65,8 @@ public class BkViewPager extends ViewGroup {
     private boolean mBeastMode = false;
     private boolean mEdgeEventMode = false;
 
-    private int mEdgePos = 0;
+    private float mEdgeMotion = 130.0f;
+    private float mEdgeMotionX;
     public static final int EDGE_EVENT_LEFT = 1;
     public static final int EDGE_EVENT_TOP = 2;
 
@@ -291,6 +292,9 @@ public class BkViewPager extends ViewGroup {
                     // Scroll if the user moved far enough along the X axis
                     mTouchState = TOUCH_STATE_SCROLLING;
                     mLastMotionX = x;
+                    mEdgeMotionX = x;
+
+//                    Log.d(TAG, "mEdgeMotionX = " + mEdgeMotionX);
                     mTouchX = getScrollX();
                     mSmoothingTime = System.nanoTime() / NANOTIME_DIV;
                     enableChildrenCache(mCurrentScreen - 1, mCurrentScreen + 1);
@@ -317,8 +321,7 @@ public class BkViewPager extends ViewGroup {
             mActivePointerId = ev.getPointerId(0);
             mAllowLongPress = true;
             mTouchState = mScroller.isFinished() ? TOUCH_STATE_REST : TOUCH_STATE_SCROLLING;
-            // fixed burke
-//            mTouchState = TOUCH_STATE_SCROLLING;
+//            Log.d(TAG, "@@ inter down");
             break;
         }
 
@@ -412,12 +415,12 @@ public class BkViewPager extends ViewGroup {
                 final float x = ev.getX(pointerIndex);
                 final float deltaX = mLastMotionX - x;
 
-//                Log.d(TAG, "touch mLastMotionY " + mLastMotionY);
+//                Log.d(TAG, "touch mEdgeMotionX " + mEdgeMotionX);
 
-                if (mEdgeEventMode && mLastMotionX < 40.0f) {
+                if (mEdgeEventMode && mEdgeMotionX < mEdgeMotion) {
                     onEdgeEventMode(EDGE_EVENT_LEFT);
-                } else if (mEdgeEventMode && mLastMotionY < 40.0f) {
-                    Log.d(TAG, "edge event top");
+                } else if (mEdgeEventMode && mLastMotionY < mEdgeMotion) {
+//                    Log.d(TAG, "edge event top");
                     onEdgeEventMode(EDGE_EVENT_TOP);
                 } else {
                     mLastMotionX = x;
