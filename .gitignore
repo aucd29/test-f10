@@ -1,0 +1,15 @@
+*.apk
+*.ap_
+*.prefs
+
+*.dex
+*.class
+
+bin/
+gen/
+proguard/
+
+**/bin/
+**/gen/
+**/proguard/
+
