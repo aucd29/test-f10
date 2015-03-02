@@ -36,8 +36,8 @@ import com.obigo.f10.CellLayout;
 public class BkViewPager extends ViewGroup {
     private static final String TAG = "BkViewPager";
 
-    private static final int INVALID_SCREEN = -1;
-    private static final int SNAP_VELOCITY = 800;
+    protected static final int INVALID_SCREEN = -1;
+    protected static final int SNAP_VELOCITY = 800;
     private int mDefaultScreen;
 
     protected boolean mFirstLayout = true;
@@ -50,10 +50,10 @@ public class BkViewPager extends ViewGroup {
     protected float mLastMotionX;
     protected float mLastMotionY;
 
-    private final static int TOUCH_STATE_REST = 0;
-    private final static int TOUCH_STATE_SCROLLING = 1;
+    protected final static int TOUCH_STATE_REST = 0;
+    protected final static int TOUCH_STATE_SCROLLING = 1;
 
-    private int mTouchState = TOUCH_STATE_REST;
+    protected int mTouchState = TOUCH_STATE_REST;
     protected boolean mAllowLongPress = true;
 
     protected int mTouchSlop;

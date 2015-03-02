@@ -70,12 +70,15 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
     public boolean onLongClick(View v) {
         Log.d(TAG, "on long click");
 
-        showDeleteZone();
-
-        switch (v.getId()) {
-        case R.id.workspace:
-            Log.d(TAG, "workspace long click");
-            break;
+        if (v instanceof CellLayout) {
+            Log.d(TAG, "long click cell layout");
+            showDeleteZone();
+        } else {
+            switch (v.getId()) {
+            case R.id.workspace:
+                Log.d(TAG, "workspace long click");
+                break;
+            }
         }
 
         return false;

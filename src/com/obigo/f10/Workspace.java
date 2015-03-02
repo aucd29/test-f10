@@ -17,15 +17,19 @@ import com.obigo.f10.ui.drag.DragScroller;
 import com.obigo.f10.ui.drag.DropTarget;
 import com.obigo.f10.ui.drag.IDragController;
 import com.obigo.f10.ui.drag.IDragSource;
+import com.obigo.f10.ui.events.OnCellDoubleTapListener;
 
-public class Workspace extends BkViewPager implements DropTarget, IDragSource , DragScroller {
+
+public class Workspace extends BkViewPager implements DropTarget, IDragSource , DragScroller, OnCellDoubleTapListener {
     private static final String TAG = "Workspace";
 
     private MainActivity mActivity;
-    private int mMaxCellCount = 9+8;
+    private int mMaxCellCount = 15;
 
     private IDragController mDragger;
     private OnLongClickListener mLongClickListener;
+    private boolean mFullSizeMode = false;
+    private int mDoubleTapPosition;
 
     public Workspace(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -48,12 +52,15 @@ public class Workspace extends BkViewPager implements DropTarget, IDragSource , 
             View view = LayoutInflater.from(getContext()).inflate(R.layout.workspace_screen, this, false);
 
             if (view instanceof CellLayout) {
-                ((CellLayout) view).setHalfMode(true);
+                CellLayout cell = (CellLayout) view;
+                cell.setHalfMode(true);
+                cell.setOnCellDoubleTapListener(this);
 
                 if (i != 0) {
                     for (int j=0; j<2; ++j) {
                         ObigoView oview = new ObigoView(getContext());
-                        ((CellLayout) view).addView(oview);
+
+                        cell.addView(oview);
 //                        Log.d(TAG, "added obigo view " + i + " : " + j);
                     }
                 }
@@ -104,6 +111,15 @@ public class Workspace extends BkViewPager implements DropTarget, IDragSource , 
         }
     }
 
+    public void setFullSizeCell(boolean fullsize) {
+        setBeastSwipeMode(!fullsize);
+        setEdgeEventMode(!fullsize);
+        setChildWidth(!fullsize);
+        mFullSizeMode = fullsize;
+
+        requestLayout();
+    }
+
     ////////////////////////////////////////////////////////////////////////////////////
     //
     // LAYOUT OVERRIDE
@@ -114,13 +130,17 @@ public class Workspace extends BkViewPager implements DropTarget, IDragSource , 
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
 
-        final int width = MeasureSpec.getSize(widthMeasureSpec) / 2;
+        int width = MeasureSpec.getSize(widthMeasureSpec);
+        if (!mFullSizeMode) {
+            width /= 2;
+        }
+
         final int widthMode = MeasureSpec.getMode(widthMeasureSpec);
         if (widthMode != MeasureSpec.EXACTLY) {
             throw new IllegalStateException("Workspace can only be used in EXACTLY mode.");
         }
 
-        final int height = MeasureSpec.getSize(heightMeasureSpec);
+        int height = MeasureSpec.getSize(heightMeasureSpec);
         final int heightMode = MeasureSpec.getMode(heightMeasureSpec);
         if (heightMode != MeasureSpec.EXACTLY) {
             throw new IllegalStateException("Workspace can only be used in EXACTLY mode.");
@@ -128,17 +148,23 @@ public class Workspace extends BkViewPager implements DropTarget, IDragSource , 
 
         // The children are given the same width and height as the workspace
         final int count = getChildCount();
-        for (int i = 0; i < count; i++) {
-            View child = getChildAt(i);
-            LayoutParams lp = (LayoutParams) child.getLayoutParams();
-            lp.width = width;
-            lp.height = i == 0 ? height : height / 2;
-            child.setLayoutParams(lp);
+        if (mFullSizeMode) {
+            for (int i = 0; i < count; i++) {
+                getChildAt(i).measure(widthMeasureSpec, heightMeasureSpec);
+            }
+        } else {
+            for (int i = 0; i < count; i++) {
+                View child = getChildAt(i);
+                LayoutParams lp = (LayoutParams) child.getLayoutParams();
+                lp.width = width;
+                lp.height = i == 0 ? height : height / 2;
+                child.setLayoutParams(lp);
 
-            int childWidthMeasureSpec = MeasureSpec.makeMeasureSpec(lp.width, MeasureSpec.EXACTLY);
-            int childheightMeasureSpec = MeasureSpec.makeMeasureSpec(lp.height, MeasureSpec.EXACTLY);
+                int childWidthMeasureSpec = MeasureSpec.makeMeasureSpec(lp.width, MeasureSpec.EXACTLY);
+                int childheightMeasureSpec = MeasureSpec.makeMeasureSpec(lp.height, MeasureSpec.EXACTLY);
 
-            getChildAt(i).measure(childWidthMeasureSpec, childheightMeasureSpec);
+                getChildAt(i).measure(childWidthMeasureSpec, childheightMeasureSpec);
+            }
         }
 
         if (mFirstLayout) {
@@ -146,6 +172,8 @@ public class Workspace extends BkViewPager implements DropTarget, IDragSource , 
             scrollTo(mCurrentScreen * width, 0);
             setHorizontalScrollBarEnabled(true);
             mFirstLayout = false;
+        } else {
+            scrollTo(mCurrentScreen * width, 0);
         }
     }
 
@@ -155,23 +183,41 @@ public class Workspace extends BkViewPager implements DropTarget, IDragSource , 
         int childTop = 0;
 
         final int count = getChildCount();
-        for (int i = 0; i < count; i++) {
-            final View child = getChildAt(i);
-            if (child.getVisibility() != View.GONE) {
-                final int childWidth = child.getMeasuredWidth();
-                final int childHeight= child.getMeasuredHeight();
 
-                if (i == 0) {
-                    child.layout(childLeft, 0, childLeft + childWidth, childHeight);
+        if (mFullSizeMode) {
+            for (int i = 0; i < count; i++) {
+                final View child = getChildAt(i);
+                if (child.getVisibility() != View.GONE) {
+                    final int childWidth = child.getMeasuredWidth();
+
+                    child.layout(childLeft, 0, childLeft + childWidth, child.getMeasuredHeight());
                     childLeft += childWidth;
-                } else {
-                    child.layout(childLeft, childTop, childLeft + childWidth, childTop + childHeight);
+                }
+            }
 
-                    if ((i % 2) == 1) {
-                        childTop = childHeight;
-                    } else {
+//            Log.d(TAG, "===================================================================");
+//            Log.d(TAG, "width " + getWidth());
+//            Log.d(TAG, "measure size " + getMeasuredWidth());
+//            Log.d(TAG, "===================================================================");
+        } else {
+            for (int i = 0; i < count; i++) {
+                final View child = getChildAt(i);
+                if (child.getVisibility() != View.GONE) {
+                    final int childWidth = child.getMeasuredWidth();
+                    final int childHeight= child.getMeasuredHeight();
+
+                    if (i == 0) {
+                        child.layout(childLeft, 0, childLeft + childWidth, childHeight);
                         childLeft += childWidth;
-                        childTop = 0;
+                    } else {
+                        child.layout(childLeft, childTop, childLeft + childWidth, childTop + childHeight);
+
+                        if ((i % 2) == 1) {
+                            childTop = childHeight;
+                        } else {
+                            childLeft += childWidth;
+                            childTop = 0;
+                        }
                     }
                 }
             }
@@ -183,6 +229,10 @@ public class Workspace extends BkViewPager implements DropTarget, IDragSource , 
         final int action = ev.getAction();
         switch (action & MotionEvent.ACTION_MASK) {
         case MotionEvent.ACTION_UP:
+            if (mTouchState != TOUCH_STATE_SCROLLING && !mFullSizeMode) {
+                setPositionDoubleTap(ev.getX(), ev.getY());
+            }
+
             if (mActivity != null && mActivity.isDeleteZone()) {
                 mActivity.hideDeleteZone();
             }
@@ -198,15 +248,27 @@ public class Workspace extends BkViewPager implements DropTarget, IDragSource , 
             return false;
         }
 
+        switch (ev.getAction()) {
+        case MotionEvent.ACTION_UP:
+            if (mTouchState != TOUCH_STATE_SCROLLING) {
+                Log.d(TAG, "x " + ev.getX() + ", y " + ev.getY());
+            }
+            break;
+        }
+
         return super.onTouchEvent(ev);
     }
 
     @Override
     public int getScreenCount() {
-        if (getChildCount() == 1) {
-            return 1;
+        if (mFullSizeMode) {
+            return getChildCount();
         } else {
-            return getChildCount() / 2;
+            if (getChildCount() == 1) {
+                return 1;
+            } else {
+                return getChildCount() / 2;
+            }
         }
     }
 
@@ -217,6 +279,23 @@ public class Workspace extends BkViewPager implements DropTarget, IDragSource , 
         final int count = getChildCount();
         for (int i = 0; i < count; i++) {
             getChildAt(i).setOnLongClickListener(l);
+        }
+    }
+
+    private void setPositionDoubleTap(float x, float y) {
+        float width  = getWidth() / 2;
+        float height = getHeight() / 2;
+
+        Log.d(TAG, "x " + x + ",y " + y);
+
+        if (x < width && y < height) {
+            mDoubleTapPosition = OnCellDoubleTapListener.TOP_LEFT;
+        } else if (x > width && y < height) {
+            mDoubleTapPosition = OnCellDoubleTapListener.TOP_RIGHT;
+        } else if (x < width && y > height) {
+            mDoubleTapPosition = OnCellDoubleTapListener.BOTTOM_LEFT;
+        } else {
+            mDoubleTapPosition = OnCellDoubleTapListener.BOTTOM_RIGHT;
         }
     }
 
@@ -263,5 +342,38 @@ public class Workspace extends BkViewPager implements DropTarget, IDragSource , 
     @Override
     public boolean acceptDrop(IDragSource source, int x, int y, int xOffset, int yOffset, Object dragInfo) {
         return false;
+    }
+
+    ////////////////////////////////////////////////////////////////////////////////////
+    //
+    // interface OnCellDoubleTapListener
+    //
+    ////////////////////////////////////////////////////////////////////////////////////
+
+    @Override
+    public void onDoubleTap(View view) {
+        Log.d(TAG, "double tap pos " + mDoubleTapPosition);
+        if (!mFullSizeMode) {
+            for (int i=0; i<getChildCount(); ++i) {
+                if (getChildAt(i).equals(view)) {
+                    mCurrentScreen = i;
+                }
+            }
+
+            setFullSizeCell(true);
+        } else {
+            Log.d(TAG, "current screen " + mCurrentScreen);
+            if (mCurrentScreen > 0 && mDoubleTapPosition == OnCellDoubleTapListener.TOP_LEFT) {
+                mCurrentScreen = mCurrentScreen / 2 + 1;
+
+                Log.d(TAG, "current size " + mCurrentScreen);
+            } else if (mDoubleTapPosition == OnCellDoubleTapListener.BOTTOM_RIGHT) {
+                mCurrentScreen = mCurrentScreen / 2 - 1;
+            } else {
+                mCurrentScreen = mCurrentScreen / 2;
+            }
+
+            setFullSizeCell(false);
+        }
     }
 }

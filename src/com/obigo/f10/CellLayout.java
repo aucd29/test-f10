@@ -7,15 +7,22 @@ package com.obigo.f10;
 
 import android.content.Context;
 import android.util.AttributeSet;
+import android.view.GestureDetector;
+import android.view.GestureDetector.OnDoubleTapListener;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 
-public class CellLayout extends ViewGroup {
+import com.obigo.f10.ui.events.OnCellDoubleTapListener;
+import com.obigo.f10.ui.events.OnIgnoreGestureListener;
+
+public class CellLayout extends ViewGroup implements OnDoubleTapListener {
     private static final String TAG = "CellLayout";
 
     private boolean mPortrait;
     private boolean mHalfMode = false;
+    private GestureDetector mDectector;
+    private OnCellDoubleTapListener mDblTapListener;
 
     public CellLayout(Context context) {
         this(context, null);
@@ -31,10 +38,8 @@ public class CellLayout extends ViewGroup {
 //        setAlwaysDrawnWithCacheEnabled(false);
         setFocusable(true);
         setFocusableInTouchMode(true);
-    }
-
-    protected void initLayout() {
-
+        mDectector = new GestureDetector(getContext(), new OnIgnoreGestureListener());
+        mDectector.setOnDoubleTapListener(this);
     }
 
     @Override
@@ -78,10 +83,10 @@ public class CellLayout extends ViewGroup {
 //            Log.d(TAG, "lp width " + lp.width);
 //            Log.d(TAG, "lp height " + lp.height);
 
-            int childWidthMeasureSpec = MeasureSpec.makeMeasureSpec(lp.width, MeasureSpec.EXACTLY);
-            int childheightMeasureSpec = MeasureSpec.makeMeasureSpec(lp.height, MeasureSpec.EXACTLY);
+//            int childWidthMeasureSpec = MeasureSpec.makeMeasureSpec(lp.width, MeasureSpec.EXACTLY);
+//            int childheightMeasureSpec = MeasureSpec.makeMeasureSpec(lp.height, MeasureSpec.EXACTLY);
 
-            child.measure(childWidthMeasureSpec, childheightMeasureSpec);
+//            child.measure(childWidthMeasureSpec, childheightMeasureSpec);
         }
 
         setMeasuredDimension(widthSpecSize, heightSpecSize);
@@ -112,7 +117,6 @@ public class CellLayout extends ViewGroup {
 
     @Override
     public boolean onInterceptTouchEvent(MotionEvent ev) {
-//        return true;
         final int action = ev.getAction();
 
         switch (action) {
@@ -131,8 +135,12 @@ public class CellLayout extends ViewGroup {
         return super.onInterceptTouchEvent(ev);
     }
 
-//    @Override
-//    public boolean onTouchEvent(MotionEvent ev) {
+    @Override
+    public boolean onTouchEvent(MotionEvent ev) {
+        if (mDectector != null) {
+//            Log.d(TAG, "@@ cell layout touch event (id: " + getId() + ")");
+            mDectector.onTouchEvent(ev);
+        }
 //        final int action = ev.getAction();
 //        switch (action) {
 //        case MotionEvent.ACTION_DOWN:
@@ -141,14 +149,65 @@ public class CellLayout extends ViewGroup {
 //        case MotionEvent.ACTION_UP:
 ////            Log.d(TAG, "    @@ touch up");
 //            break;
-//
-//
 //        }
-//
-//        return super.onTouchEvent(ev);
-//    }
+
+        return super.onTouchEvent(ev);
+    }
 
     public void setHalfMode(boolean half) {
         mHalfMode = half;
+    }
+
+    ////////////////////////////////////////////////////////////////////////////////////
+    //
+    // interface OnCellDoubleTapListener
+    //
+    ////////////////////////////////////////////////////////////////////////////////////
+
+    public void setOnCellDoubleTapListener(OnCellDoubleTapListener l) {
+        mDblTapListener = l;
+    }
+
+    ////////////////////////////////////////////////////////////////////////////////////
+    //
+    // OnDoubleTapListener
+    //
+    ////////////////////////////////////////////////////////////////////////////////////
+
+    @Override
+    public boolean onDoubleTap(MotionEvent e) {
+        if (mDblTapListener != null) {
+//            final float x = e.getX();
+//            final float y = e.getY();
+//
+//            int width  = ((View) getParent()).getWidth() / 2;
+//            int height = ((View) getParent()).getHeight() / 2;
+//            int position;
+//            Log.d(TAG, "width " + width + ", height " + height);
+//
+//            if (x < width && y < height) {
+//                position = OnCellDoubleTapListener.TOP_LEFT;
+//            } else if (x > width && y > height) {
+//                position = OnCellDoubleTapListener.TOP_RIGHT;
+//            } else if (x < width && y > height) {
+//                position = OnCellDoubleTapListener.BOTTOM_LEFT;
+//            } else {
+//                position = OnCellDoubleTapListener.BOTTOM_RIGHT;
+//            }
+
+            mDblTapListener.onDoubleTap(this);
+        }
+
+        return false;
+    }
+
+    @Override
+    public boolean onDoubleTapEvent(MotionEvent e) {
+        return false;
+    }
+
+    @Override
+    public boolean onSingleTapConfirmed(MotionEvent e) {
+        return false;
     }
 }
