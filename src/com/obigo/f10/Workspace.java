@@ -22,7 +22,7 @@ public class Workspace extends BkViewPager implements DropTarget, IDragSource , 
     private static final String TAG = "Workspace";
 
     private MainActivity mActivity;
-    private int mMaxCellCount = 9;
+    private int mMaxCellCount = 9+8;
 
     private IDragController mDragger;
     private OnLongClickListener mLongClickListener;
@@ -206,7 +206,6 @@ public class Workspace extends BkViewPager implements DropTarget, IDragSource , 
         if (getChildCount() == 1) {
             return 1;
         } else {
-            Log.d(TAG, "@@ screend count " + (getChildCount() / 2));
             return getChildCount() / 2;
         }
     }
