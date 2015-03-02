@@ -57,5 +57,5 @@
         android:scaleType="center"
         android:src="@drawable/delete_zone_selector"
         android:visibility="invisible" />
-
+    
 </com.obigo.f10.ui.drag.DragLayer>

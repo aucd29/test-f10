@@ -1,8 +1,12 @@
+/*
+ * CellLayout.java
+ * Copyright 2015 OBIGO Inc. All rights reserved.
+ *             http://www.obigo.com
+ */
 package com.obigo.f10;
 
 import android.content.Context;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
@@ -38,10 +42,10 @@ public class CellLayout extends ViewGroup {
         int widthSpecMode = MeasureSpec.getMode(widthMeasureSpec);
         int widthSpecSize =  MeasureSpec.getSize(widthMeasureSpec);
 
-        // added burke
-        if (mHalfMode) {
-            widthSpecSize /= 2;
-        }
+//        // added burke
+//        if (mHalfMode) {
+//            widthSpecSize /= 2;
+//        }
 
         int heightSpecMode = MeasureSpec.getMode(heightMeasureSpec);
         int heightSpecSize =  MeasureSpec.getSize(heightMeasureSpec);
@@ -50,47 +54,15 @@ public class CellLayout extends ViewGroup {
             throw new RuntimeException("CellLayout cannot have UNSPECIFIED dimensions");
         }
 
-//        final int shortAxisCells = mShortAxisCells;
-//        final int longAxisCells = mLongAxisCells;
-//        final int longAxisStartPadding = mLongAxisStartPadding;
-//        final int longAxisEndPadding = mLongAxisEndPadding;
-//        final int shortAxisStartPadding = mShortAxisStartPadding;
-//        final int shortAxisEndPadding = mShortAxisEndPadding;
-//        final int cellWidth = mCellWidth;
-//        final int cellHeight = mCellHeight;
-
-        mPortrait = heightSpecSize > widthSpecSize;
-
-//        int numShortGaps = shortAxisCells - 1;
-//        int numLongGaps = longAxisCells - 1;
-
-//        if (mPortrait) {
-//            int vSpaceLeft = heightSpecSize - longAxisStartPadding - longAxisEndPadding - (cellHeight * longAxisCells);
-//            mHeightGap = vSpaceLeft / numLongGaps;
-//
-//            int hSpaceLeft = widthSpecSize - shortAxisStartPadding - shortAxisEndPadding - (cellWidth * shortAxisCells);
-//            if (numShortGaps > 0) {
-//                mWidthGap = hSpaceLeft / numShortGaps;
-//            } else {
-//                mWidthGap = 0;
-//            }
-//        } else {
-//            int hSpaceLeft = widthSpecSize - longAxisStartPadding - longAxisEndPadding - (cellWidth * longAxisCells);
-//            mWidthGap = hSpaceLeft / numLongGaps;
-//
-//            int vSpaceLeft = heightSpecSize - shortAxisStartPadding - shortAxisEndPadding - (cellHeight * shortAxisCells);
-//            if (numShortGaps > 0) {
-//                mHeightGap = vSpaceLeft / numShortGaps;
-//            } else {
-//                mHeightGap = 0;
-//            }
-//        }
-
         int count = getChildCount();
 
         for (int i = 0; i < count; i++) {
             View child = getChildAt(i);
             LayoutParams lp = (LayoutParams) child.getLayoutParams();
+            lp.width = widthSpecSize;
+//            lp.height = heightSpecSize / 2;
+            lp.height = heightSpecSize;
+            child.setLayoutParams(lp);
 
 //            if (mPortrait) {
 //                lp.setup(cellWidth, cellHeight, mWidthGap, mHeightGap, shortAxisStartPadding, longAxisStartPadding);
@@ -103,7 +75,8 @@ public class CellLayout extends ViewGroup {
 //                lp.regenerateId = false;
 //            }
 
-            Log.d(TAG, "lp width " + lp.width);
+//            Log.d(TAG, "lp width " + lp.width);
+//            Log.d(TAG, "lp height " + lp.height);
 
             int childWidthMeasureSpec = MeasureSpec.makeMeasureSpec(lp.width, MeasureSpec.EXACTLY);
             int childheightMeasureSpec = MeasureSpec.makeMeasureSpec(lp.height, MeasureSpec.EXACTLY);
@@ -117,27 +90,24 @@ public class CellLayout extends ViewGroup {
     @Override
     protected void onLayout(boolean changed, int l, int t, int r, int b) {
         int count = getChildCount();
+        int childTop = 0;
 
-//        for (int i = 0; i < count; i++) {
-//            View child = getChildAt(i);
-//            if (child.getVisibility() != GONE) {
+        for (int i = 0; i < count; i++) {
+            View child = getChildAt(i);
+            if (child.getVisibility() != GONE) {
 //                CellLayout.LayoutParams lp = (CellLayout.LayoutParams) child.getLayoutParams();
 //
 //                int childLeft = lp.x;
 //                int childTop = lp.y;
-//                child.layout(childLeft, childTop, childLeft + lp.width, childTop + lp.height);
-//
-//                if (lp.dropped) {
-//                    lp.dropped = false;
-//
-//                    final int[] cellXY = mCellXY;
-//                    getLocationOnScreen(cellXY);
-//                    mWallpaperManager.sendWallpaperCommand(getWindowToken(), "android.home.drop",
-//                            cellXY[0] + childLeft + lp.width / 2,
-//                            cellXY[1] + childTop + lp.height / 2, 0, null);
-//                }
-//            }
-//        }
+//                Log.d(TAG, "cell - width " + child.getMeasuredWidth());
+//                Log.d(TAG, "cell - height " + child.getMeasuredHeight());
+
+//                Log.d(TAG, "left 0, top " + childTop + ", width " + child.getMeasuredWidth() + ", height " + (childTop + child.getMeasuredHeight()));
+
+                child.layout(0, childTop, child.getMeasuredWidth(), childTop + child.getMeasuredHeight());
+                childTop += child.getMeasuredHeight();
+            }
+        }
     }
 
     @Override

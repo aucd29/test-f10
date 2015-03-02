@@ -1,6 +1,6 @@
 /*
  * BkViewPager.java
- * Copyright 2013 OBIGO Inc. All rights reserved.
+ * Copyright 2015 OBIGO Inc. All rights reserved.
  *             http://www.obigo.com
  */
 package com.obigo.f10.ui;
@@ -28,9 +28,9 @@ public class BkViewPager extends ViewGroup {
     private static final int SNAP_VELOCITY = 800;
     private int mDefaultScreen;
 
-    private boolean mFirstLayout = true;
+    protected boolean mFirstLayout = true;
 
-    private int mCurrentScreen;
+    protected int mCurrentScreen;
     private int mNextScreen = INVALID_SCREEN;
     private Scroller mScroller;
     protected VelocityTracker mVelocityTracker;
@@ -134,7 +134,7 @@ public class BkViewPager extends ViewGroup {
         }
 
         clearVacantCache();
-        mCurrentScreen = Math.max(0, Math.min(currentScreen, getChildCount() - 1));
+        mCurrentScreen = Math.max(0, Math.min(currentScreen, getScreenCount() - 1));
 //        mPreviousIndicator.setLevel(mCurrentScreen);
 //        mNextIndicator.setLevel(mCurrentScreen);
         scrollTo(mCurrentScreen * getWidth(), 0);
@@ -164,7 +164,7 @@ public class BkViewPager extends ViewGroup {
             setScrollY(mScroller.getCurrY());
             postInvalidate();
         } else if (mNextScreen != INVALID_SCREEN) {
-            mCurrentScreen = Math.max(0, Math.min(mNextScreen, getChildCount() - 1));
+            mCurrentScreen = Math.max(0, Math.min(mNextScreen, getScreenCount() - 1));
 //            mPreviousIndicator.setLevel(mCurrentScreen);
 //            mNextIndicator.setLevel(mCurrentScreen);
 //            Launcher.setScreen(mCurrentScreen);
@@ -183,35 +183,6 @@ public class BkViewPager extends ViewGroup {
             }
         }
     }
-
-    // modified by burke
-//    @Override
-//    protected void dispatchDraw(Canvas canvas) {
-//        boolean restore = false;
-//        int restoreCount = 0;
-//
-//        boolean fastDraw = mTouchState != TOUCH_STATE_SCROLLING && mNextScreen == INVALID_SCREEN;
-//        if (fastDraw) {
-//            drawChild(canvas, getChildAt(mCurrentScreen), getDrawingTime());
-//        } else {
-//            final long drawingTime = getDrawingTime();
-//            final float scrollPos = (float) getScrollX() / getWidth();
-//            final int leftScreen = (int) scrollPos;
-//            final int rightScreen = leftScreen + 1;
-//
-////            Log.d(TAG, "leftscreen : " + leftScreen + ", rightScreen " + rightScreen + ", mCurrentScreen " + mCurrentScreen);
-//            if (leftScreen >= 0) {
-//                drawChild(canvas, getChildAt(leftScreen), drawingTime);
-//            }
-//            if (scrollPos != leftScreen && rightScreen < getChildCount()) {
-//                drawChild(canvas, getChildAt(rightScreen), drawingTime);
-//            }
-//        }
-//
-//        if (restore) {
-//            canvas.restoreToCount(restoreCount);
-//        }
-//    }
 
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
@@ -418,10 +389,10 @@ public class BkViewPager extends ViewGroup {
 //                Log.d(TAG, "touch mEdgeMotionX " + mEdgeMotionX);
 
                 if (mEdgeEventMode && mEdgeMotionX < mEdgeMotion) {
-                    onEdgeEventMode(EDGE_EVENT_LEFT);
+                    onEdgeEvent(EDGE_EVENT_LEFT);
                 } else if (mEdgeEventMode && mLastMotionY < mEdgeMotion) {
 //                    Log.d(TAG, "edge event top");
-                    onEdgeEventMode(EDGE_EVENT_TOP);
+                    onEdgeEvent(EDGE_EVENT_TOP);
                 } else {
                     mLastMotionX = x;
 
@@ -465,7 +436,7 @@ public class BkViewPager extends ViewGroup {
                     } else {
                         snapToScreen(Math.min(whichScreen, bound), velocityX, true);
                     }
-                } else if (velocityX < -SNAP_VELOCITY && mCurrentScreen < getChildCount() - 1) {
+                } else if (velocityX < -SNAP_VELOCITY && mCurrentScreen < getScreenCount() - 1) {
                     // Fling hard enough to move right
                     // Don't fling across more than one screen at a time.
                     final int bound = scrolledPos > whichScreen ? mCurrentScreen + 1 : mCurrentScreen;
@@ -518,8 +489,12 @@ public class BkViewPager extends ViewGroup {
         snapToScreen(whichScreen, 0, false);
     }
 
+    public int getScreenCount() {
+        return getChildCount();
+    }
+
     private void snapToScreen(int whichScreen, int velocity, boolean settle) {
-        whichScreen = Math.max(0, Math.min(whichScreen, getChildCount() - 1));
+        whichScreen = Math.max(0, Math.min(whichScreen, getScreenCount() - 1));
 
         clearVacantCache();
         enableChildrenCache(mCurrentScreen, whichScreen);
@@ -563,7 +538,7 @@ public class BkViewPager extends ViewGroup {
 
     public void snapToDestination() {
 //        Log.d(TAG, "count child " + getChildCount());
-        snapToScreen(getChildCount() - 2, 0, false);
+        snapToScreen(getScreenCount() - 2, 0, false);
     }
 
     /**
@@ -657,7 +632,7 @@ public class BkViewPager extends ViewGroup {
         mEdgeEventMode = edgeMode;
     }
 
-    public void onEdgeEventMode(int mode) {
+    public void onEdgeEvent(int mode) {
         Log.d(TAG, "@@ EDGE EVENT CALLED " + mode);
     }
 }

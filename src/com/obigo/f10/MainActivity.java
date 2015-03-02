@@ -1,16 +1,21 @@
+/*
+ * ObigoView.java
+ * Copyright 2015 OBIGO Inc. All rights reserved.
+ *             http://www.obigo.com
+ */
 package com.obigo.f10;
 
-import android.animation.Animator;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
+import android.view.HapticFeedbackConstants;
 import android.view.View;
 import android.view.View.OnLongClickListener;
 import android.widget.FrameLayout;
 
 import com.obigo.f10.ui.ani.AnimatorEndListener;
-import com.obigo.f10.ui.ani.Transition;
+import com.obigo.f10.ui.ani.Translation;
 import com.obigo.f10.ui.drag.DragLayer;
 
 public class MainActivity extends FragmentActivity implements View.OnClickListener, OnLongClickListener{
@@ -52,10 +57,8 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
 
         if (Intent.ACTION_MAIN.equals(intent.getAction())) {
             if ((intent.getFlags() & Intent.FLAG_ACTIVITY_BROUGHT_TO_FRONT) != Intent.FLAG_ACTIVITY_BROUGHT_TO_FRONT) {
-                if (mAppList.getVisibility() == View.VISIBLE) {
-                    hideAppList();
-                } else if (mSetting.getVisibility() == View.VISIBLE) {
-                    hideSettingMenu();
+                if (isWorkspaceLocked()) {
+                    onBackPressed();
                 } else {
                     mWorkspace.snapToScreen(0);
                 }
@@ -118,51 +121,37 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
     public void showAppList() {
         if (mAppList.getVisibility() == View.INVISIBLE) {
             mAppList.setVisibility(View.VISIBLE);
-            Transition.startX(mAppList, APPLIST_MOVE_X, null);
+            Translation.startX(mAppList, APPLIST_MOVE_X, null);
         }
     }
 
     public void hideAppList() {
-        Transition.startX(mAppList, APPLIST_MOVE_X * -1, new AnimatorEndListener() {
-            @Override
-            public void onAnimationEnd(Animator animation) {
-                mAppList.setVisibility(View.INVISIBLE);
-            }
-        });
+        Translation.startX(mAppList, APPLIST_MOVE_X * -1, new AnimatorEndListener(mAppList));
     }
 
     public void showSettingMenu() {
         if (mSetting.getVisibility() == View.INVISIBLE) {
             mSetting.setVisibility(View.VISIBLE);
-            Transition.startY(mSetting, SETTING_MOVE_Y, null);
+            Translation.startY(mSetting, SETTING_MOVE_Y, null);
         }
     }
 
     public void hideSettingMenu() {
-        Transition.startY(mSetting, SETTING_MOVE_Y * -1, new AnimatorEndListener() {
-            @Override
-            public void onAnimationEnd(Animator animation) {
-                mSetting.setVisibility(View.INVISIBLE);
-            }
-        });
+        Translation.startY(mSetting, SETTING_MOVE_Y * -1, new AnimatorEndListener(mSetting));
     }
 
     public void showDeleteZone() {
         if (mDeleteZone.getVisibility() == View.INVISIBLE) {
+            mDeleteZone.performHapticFeedback( HapticFeedbackConstants.LONG_PRESS );
+
             mDeleteZone.setVisibility(View.VISIBLE);
-            Transition.startY(mDeleteZone, DELZONE_MOVE_Y, null);
+            Translation.startY(mDeleteZone, DELZONE_MOVE_Y, null);
         }
     }
 
     public void hideDeleteZone() {
-        Transition.startY(mDeleteZone, DELZONE_MOVE_Y * -1, new AnimatorEndListener() {
-            @Override
-            public void onAnimationEnd(Animator animation) {
-                mDeleteZone.setVisibility(View.INVISIBLE);
-            }
-        });
+        Translation.startY(mDeleteZone, DELZONE_MOVE_Y * -1, new AnimatorEndListener(mDeleteZone));
     }
-
 
     /*@Override
     public boolean onCreateOptionsMenu(Menu menu) {

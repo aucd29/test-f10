@@ -1,6 +1,6 @@
 /*
  * Workspace.java
- * Copyright 2013 OBIGO Inc. All rights reserved.
+ * Copyright 2015 OBIGO Inc. All rights reserved.
  *             http://www.obigo.com
  */
 package com.obigo.f10;
@@ -22,13 +22,14 @@ public class Workspace extends BkViewPager implements DropTarget, IDragSource , 
     private static final String TAG = "Workspace";
 
     private MainActivity mActivity;
-    private int mMaxCellCount = 10;
+    private int mMaxCellCount = 9;
 
     private IDragController mDragger;
     private OnLongClickListener mLongClickListener;
 
     public Workspace(Context context, AttributeSet attrs) {
         super(context, attrs);
+
         initWorkspace();
         initLayout();
     }
@@ -48,12 +49,15 @@ public class Workspace extends BkViewPager implements DropTarget, IDragSource , 
 
             if (view instanceof CellLayout) {
                 ((CellLayout) view).setHalfMode(true);
-            }
 
-//            WebView view = new WebView(getContext());
-//            view.loadUrl("http://sarangnamu.net");
-//            view.setVerticalScrollBarEnabled(false);
-//            view.setHorizontalScrollBarEnabled(false);
+                if (i != 0) {
+                    for (int j=0; j<2; ++j) {
+                        ObigoView oview = new ObigoView(getContext());
+                        ((CellLayout) view).addView(oview);
+//                        Log.d(TAG, "added obigo view " + i + " : " + j);
+                    }
+                }
+            }
 
             int x = i % 5;
             switch (x) {
@@ -76,22 +80,14 @@ public class Workspace extends BkViewPager implements DropTarget, IDragSource , 
 
             addView(view);
         }
-
-//        postDelayed(new Runnable() {
-//            @Override
-//            public void run() {
-//                snapToScreen(3);
-//            }
-//        }, 1000);
     }
-
 
     public void setMainActivity(MainActivity activity) {
         mActivity = activity;
     }
 
     @Override
-    public void onEdgeEventMode(int mode) {
+    public void onEdgeEvent(int mode) {
         if (mActivity != null) {
             switch (mode) {
             case EDGE_EVENT_LEFT:
@@ -108,13 +104,87 @@ public class Workspace extends BkViewPager implements DropTarget, IDragSource , 
         }
     }
 
+    ////////////////////////////////////////////////////////////////////////////////////
+    //
+    // LAYOUT OVERRIDE
+    //
+    ////////////////////////////////////////////////////////////////////////////////////
+
+    @Override
+    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+        super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+
+        final int width = MeasureSpec.getSize(widthMeasureSpec) / 2;
+        final int widthMode = MeasureSpec.getMode(widthMeasureSpec);
+        if (widthMode != MeasureSpec.EXACTLY) {
+            throw new IllegalStateException("Workspace can only be used in EXACTLY mode.");
+        }
+
+        final int height = MeasureSpec.getSize(heightMeasureSpec);
+        final int heightMode = MeasureSpec.getMode(heightMeasureSpec);
+        if (heightMode != MeasureSpec.EXACTLY) {
+            throw new IllegalStateException("Workspace can only be used in EXACTLY mode.");
+        }
+
+        // The children are given the same width and height as the workspace
+        final int count = getChildCount();
+        for (int i = 0; i < count; i++) {
+            View child = getChildAt(i);
+            LayoutParams lp = (LayoutParams) child.getLayoutParams();
+            lp.width = width;
+            lp.height = i == 0 ? height : height / 2;
+            child.setLayoutParams(lp);
+
+            int childWidthMeasureSpec = MeasureSpec.makeMeasureSpec(lp.width, MeasureSpec.EXACTLY);
+            int childheightMeasureSpec = MeasureSpec.makeMeasureSpec(lp.height, MeasureSpec.EXACTLY);
+
+            getChildAt(i).measure(childWidthMeasureSpec, childheightMeasureSpec);
+        }
+
+        if (mFirstLayout) {
+            setHorizontalScrollBarEnabled(false);
+            scrollTo(mCurrentScreen * width, 0);
+            setHorizontalScrollBarEnabled(true);
+            mFirstLayout = false;
+        }
+    }
+
+    @Override
+    protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
+        int childLeft = 0;
+        int childTop = 0;
+
+        final int count = getChildCount();
+        for (int i = 0; i < count; i++) {
+            final View child = getChildAt(i);
+            if (child.getVisibility() != View.GONE) {
+                final int childWidth = child.getMeasuredWidth();
+                final int childHeight= child.getMeasuredHeight();
+
+                if (i == 0) {
+                    child.layout(childLeft, 0, childLeft + childWidth, childHeight);
+                    childLeft += childWidth;
+                } else {
+                    child.layout(childLeft, childTop, childLeft + childWidth, childTop + childHeight);
+
+                    if ((i % 2) == 1) {
+                        childTop = childHeight;
+                    } else {
+                        childLeft += childWidth;
+                        childTop = 0;
+                    }
+                }
+            }
+        }
+    }
+
     @Override
     public boolean onInterceptTouchEvent(MotionEvent ev) {
         final int action = ev.getAction();
         switch (action & MotionEvent.ACTION_MASK) {
         case MotionEvent.ACTION_UP:
             if (mActivity != null && mActivity.isDeleteZone()) {
-              mActivity.hideDeleteZone();
+                mActivity.hideDeleteZone();
             }
             break;
         }
@@ -129,6 +199,16 @@ public class Workspace extends BkViewPager implements DropTarget, IDragSource , 
         }
 
         return super.onTouchEvent(ev);
+    }
+
+    @Override
+    public int getScreenCount() {
+        if (getChildCount() == 1) {
+            return 1;
+        } else {
+            Log.d(TAG, "@@ screend count " + (getChildCount() / 2));
+            return getChildCount() / 2;
+        }
     }
 
     @Override
