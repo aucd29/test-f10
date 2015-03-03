@@ -10,6 +10,7 @@ import android.view.View;
 
 public class Capture {
     public static Bitmap get(View view) {
+        view.invalidate();
         view.buildDrawingCache();
         Bitmap bmp = view.getDrawingCache();
 

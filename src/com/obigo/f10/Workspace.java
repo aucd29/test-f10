@@ -378,8 +378,8 @@ public class Workspace extends BkViewPager implements DropTarget, IDragSource , 
             Drawable drawable = new BitmapDrawable(getContext().getResources(), Capture.get(view));
             expandLayout.setScaleX(1);
             expandLayout.setScaleY(1);
-            expandLayout.setTranslationX(1);
-            expandLayout.setTranslationY(1);
+            expandLayout.setTranslationX(0);
+            expandLayout.setTranslationY(0);
             expandLayout.setLayoutParams(lp);
             expandLayout.setBackground(drawable);
             expandLayout.setVisibility(View.VISIBLE);
@@ -429,6 +429,11 @@ public class Workspace extends BkViewPager implements DropTarget, IDragSource , 
     }
 
     public void resetScreenMode() {
+        mAnimating = true;
+
+        int prevScreen = mCurrentScreen;
+        Drawable drawable = new BitmapDrawable(getContext().getResources(), Capture.get(getChildAt(mCurrentScreen)));
+
         if (mCurrentScreen > 0 && mDoubleTapPosition == OnCellDoubleTapListener.LEFT_TOP) {
             mCurrentScreen = mCurrentScreen / 2 + 1;
         } else if (mDoubleTapPosition == OnCellDoubleTapListener.RIGHT_BOTTOM) {
@@ -438,6 +443,28 @@ public class Workspace extends BkViewPager implements DropTarget, IDragSource , 
         }
 
         setFullScreenMode(false);
+
+        final View expandLayout = mActivity.getExpandLayout();
+        expandLayout.setScaleX(1);
+        expandLayout.setScaleY(1);
+        expandLayout.setTranslationX(0);
+        expandLayout.setTranslationY(0);
+
+        FrameLayout.LayoutParams lp = new FrameLayout.LayoutParams(getWidth(), getHeight());
+        expandLayout.setLayoutParams(lp);
+        expandLayout.setBackground(drawable);
+//        expandLayout.setBackgroundColor(0xff000000);
+        expandLayout.setVisibility(View.VISIBLE);
+
+        Resize.collapse(expandLayout, prevScreen, mDoubleTapPosition, getWidth(), getHeight(), new AnimatorEndListener(expandLayout) {
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                super.onAnimationEnd(animation);
+                setFullScreenMode(false);
+
+                mAnimating = false;
+            }
+        });
     }
 
     public boolean isFullScreenMode() {

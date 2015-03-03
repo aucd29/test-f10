@@ -36,6 +36,7 @@ public class CellLayout extends ViewGroup implements OnDoubleTapListener {
         super(context, attrs, defStyle);
 
 //        setAlwaysDrawnWithCacheEnabled(false);
+        setDrawingCacheEnabled(false);
         setFocusable(true);
         setFocusableInTouchMode(true);
         mDectector = new GestureDetector(getContext(), new OnIgnoreGestureListener());
