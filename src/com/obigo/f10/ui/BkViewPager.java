@@ -43,7 +43,7 @@ public class BkViewPager extends ViewGroup {
     protected boolean mFirstLayout = true;
 
     protected int mCurrentScreen;
-    private int mNextScreen = INVALID_SCREEN;
+    protected int mNextScreen = INVALID_SCREEN;
     private Scroller mScroller;
     protected VelocityTracker mVelocityTracker;
 
@@ -73,12 +73,12 @@ public class BkViewPager extends ViewGroup {
     private static final float BASELINE_FLING_VELOCITY = 2500.f;
     private static final float FLING_VELOCITY_INFLUENCE = 0.4f;
 
-    private boolean mChildWidth = false;
+    private boolean mScrolllByChildWidth = false;
     private boolean mBeastMode = false;
     private boolean mEdgeEventMode = false;
 
     private float mEdgeMotion = 130.0f;
-    private float mEdgeMotionX;
+    private float mEdgeMotionX, mEdgeMotionY;
     public static final int EDGE_EVENT_LEFT = 1;
     public static final int EDGE_EVENT_TOP = 2;
 
@@ -276,6 +276,7 @@ public class BkViewPager extends ViewGroup {
                     mTouchState = TOUCH_STATE_SCROLLING;
                     mLastMotionX = x;
                     mEdgeMotionX = x;
+                    mEdgeMotionY = y;
 
 //                    Log.d(TAG, "mEdgeMotionX = " + mEdgeMotionX);
                     mTouchX = getScrollX();
@@ -397,12 +398,15 @@ public class BkViewPager extends ViewGroup {
                 final int pointerIndex = ev.findPointerIndex(mActivePointerId);
                 final float x = ev.getX(pointerIndex);
                 final float deltaX = mLastMotionX - x;
+                final float y = ev.getY(pointerIndex);
+                final float deltaY = mLastMotionY - y;
 
 //                Log.d(TAG, "touch mEdgeMotionX " + mEdgeMotionX);
+//                Log.d(TAG, "deltaY " + deltaY);
 
                 if (mEdgeEventMode && mEdgeMotionX < mEdgeMotion) {
                     onEdgeEvent(EDGE_EVENT_LEFT);
-                } else if (mEdgeEventMode && mLastMotionY < mEdgeMotion) {
+                } else if (mEdgeEventMode && mEdgeMotionY < mEdgeMotion && deltaY < -60) {
 //                    Log.d(TAG, "edge event top");
                     onEdgeEvent(EDGE_EVENT_TOP);
                 } else {
@@ -434,7 +438,7 @@ public class BkViewPager extends ViewGroup {
                 velocityTracker.computeCurrentVelocity(1000, mMaximumVelocity);
                 final int velocityX = (int) velocityTracker.getXVelocity(mActivePointerId);
 
-                final int screenWidth = mChildWidth ? getWidth() / 2 : getWidth();
+                final int screenWidth = mScrolllByChildWidth ? getWidth() / 2 : getWidth();
                 final int whichScreen = (getScrollX() + (screenWidth / 2)) / screenWidth;
                 final float scrolledPos = (float) getScrollX() / screenWidth;
 
@@ -505,7 +509,7 @@ public class BkViewPager extends ViewGroup {
         return getChildCount();
     }
 
-    private void snapToScreen(int whichScreen, int velocity, boolean settle) {
+    protected void snapToScreen(int whichScreen, int velocity, boolean settle) {
         whichScreen = Math.max(0, Math.min(whichScreen, getScreenCount() - 1));
 
         clearVacantCache();
@@ -522,7 +526,7 @@ public class BkViewPager extends ViewGroup {
         }
 
         final int screenDelta = Math.max(1, Math.abs(whichScreen - mCurrentScreen));
-        final int newX = whichScreen * (mChildWidth ? getWidth() / 2 : getWidth());
+        final int newX = whichScreen * (mScrolllByChildWidth ? getWidth() / 2 : getWidth());
         final int delta = newX - getScrollX();
         int duration = (screenDelta + 1) * 100;
 
@@ -632,8 +636,8 @@ public class BkViewPager extends ViewGroup {
         }
     }
 
-    public void setChildWidth(boolean childWidth) {
-        mChildWidth = childWidth;
+    public void setScrollByChildWidth(boolean childWidth) {
+        mScrolllByChildWidth = childWidth;
     }
 
     public void setBeastSwipeMode(boolean beastMode) {

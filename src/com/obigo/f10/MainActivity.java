@@ -59,6 +59,8 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
             if ((intent.getFlags() & Intent.FLAG_ACTIVITY_BROUGHT_TO_FRONT) != Intent.FLAG_ACTIVITY_BROUGHT_TO_FRONT) {
                 if (isWorkspaceLocked()) {
                     onBackPressed();
+                } else if (mWorkspace.isFullScreenMode()) {
+                    mWorkspace.resetScreenMode();
                 } else {
                     mWorkspace.snapToScreen(0);
                 }

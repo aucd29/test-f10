@@ -9,10 +9,10 @@ import android.view.View;
 
 
 public interface OnCellDoubleTapListener {
-    public static final int TOP_LEFT = 0;
-    public static final int TOP_RIGHT = 1;
-    public static final int BOTTOM_LEFT = 2;
-    public static final int BOTTOM_RIGHT = 3;
+    public static final int LEFT_TOP = 0;
+    public static final int LEFT_BOTTOM = 1;
+    public static final int RIGHT_TOP = 2;
+    public static final int RIGHT_BOTTOM = 3;
 
     public void onDoubleTap(View view);
 }

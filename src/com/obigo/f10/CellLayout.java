@@ -177,24 +177,6 @@ public class CellLayout extends ViewGroup implements OnDoubleTapListener {
     @Override
     public boolean onDoubleTap(MotionEvent e) {
         if (mDblTapListener != null) {
-//            final float x = e.getX();
-//            final float y = e.getY();
-//
-//            int width  = ((View) getParent()).getWidth() / 2;
-//            int height = ((View) getParent()).getHeight() / 2;
-//            int position;
-//            Log.d(TAG, "width " + width + ", height " + height);
-//
-//            if (x < width && y < height) {
-//                position = OnCellDoubleTapListener.TOP_LEFT;
-//            } else if (x > width && y > height) {
-//                position = OnCellDoubleTapListener.TOP_RIGHT;
-//            } else if (x < width && y > height) {
-//                position = OnCellDoubleTapListener.BOTTOM_LEFT;
-//            } else {
-//                position = OnCellDoubleTapListener.BOTTOM_RIGHT;
-//            }
-
             mDblTapListener.onDoubleTap(this);
         }
 

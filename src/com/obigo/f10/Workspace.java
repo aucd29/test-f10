@@ -28,7 +28,7 @@ public class Workspace extends BkViewPager implements DropTarget, IDragSource , 
 
     private IDragController mDragger;
     private OnLongClickListener mLongClickListener;
-    private boolean mFullSizeMode = false;
+    private boolean mFullScreenMode = false;
     private int mDoubleTapPosition;
 
     public Workspace(Context context, AttributeSet attrs) {
@@ -44,7 +44,7 @@ public class Workspace extends BkViewPager implements DropTarget, IDragSource , 
 
     private void initLayout() {
         setHapticFeedbackEnabled(false);
-        setChildWidth(true);
+        setScrollByChildWidth(true);
         setBeastSwipeMode(true);
         setEdgeEventMode(true);
 
@@ -111,13 +111,25 @@ public class Workspace extends BkViewPager implements DropTarget, IDragSource , 
         }
     }
 
-    public void setFullSizeCell(boolean fullsize) {
-        setBeastSwipeMode(!fullsize);
-        setEdgeEventMode(!fullsize);
-        setChildWidth(!fullsize);
-        mFullSizeMode = fullsize;
+    private void setFullScreenMode(boolean mode) {
+        setBeastSwipeMode(!mode);
+        setEdgeEventMode(!mode);
+        setScrollByChildWidth(!mode);
+        mFullScreenMode = mode;
 
         requestLayout();
+    }
+
+    public void resetScreenMode() {
+        if (mCurrentScreen > 0 && mDoubleTapPosition == OnCellDoubleTapListener.LEFT_TOP) {
+            mCurrentScreen = mCurrentScreen / 2 + 1;
+        } else if (mDoubleTapPosition == OnCellDoubleTapListener.RIGHT_BOTTOM) {
+            mCurrentScreen = mCurrentScreen / 2 - 1;
+        } else {
+            mCurrentScreen = mCurrentScreen / 2;
+        }
+
+        setFullScreenMode(false);
     }
 
     ////////////////////////////////////////////////////////////////////////////////////
@@ -131,7 +143,7 @@ public class Workspace extends BkViewPager implements DropTarget, IDragSource , 
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
 
         int width = MeasureSpec.getSize(widthMeasureSpec);
-        if (!mFullSizeMode) {
+        if (!mFullScreenMode) {
             width /= 2;
         }
 
@@ -148,7 +160,7 @@ public class Workspace extends BkViewPager implements DropTarget, IDragSource , 
 
         // The children are given the same width and height as the workspace
         final int count = getChildCount();
-        if (mFullSizeMode) {
+        if (mFullScreenMode) {
             for (int i = 0; i < count; i++) {
                 getChildAt(i).measure(widthMeasureSpec, heightMeasureSpec);
             }
@@ -184,7 +196,7 @@ public class Workspace extends BkViewPager implements DropTarget, IDragSource , 
 
         final int count = getChildCount();
 
-        if (mFullSizeMode) {
+        if (mFullScreenMode) {
             for (int i = 0; i < count; i++) {
                 final View child = getChildAt(i);
                 if (child.getVisibility() != View.GONE) {
@@ -194,11 +206,6 @@ public class Workspace extends BkViewPager implements DropTarget, IDragSource , 
                     childLeft += childWidth;
                 }
             }
-
-//            Log.d(TAG, "===================================================================");
-//            Log.d(TAG, "width " + getWidth());
-//            Log.d(TAG, "measure size " + getMeasuredWidth());
-//            Log.d(TAG, "===================================================================");
         } else {
             for (int i = 0; i < count; i++) {
                 final View child = getChildAt(i);
@@ -229,7 +236,7 @@ public class Workspace extends BkViewPager implements DropTarget, IDragSource , 
         final int action = ev.getAction();
         switch (action & MotionEvent.ACTION_MASK) {
         case MotionEvent.ACTION_UP:
-            if (mTouchState != TOUCH_STATE_SCROLLING && !mFullSizeMode) {
+            if (mTouchState != TOUCH_STATE_SCROLLING && !mFullScreenMode) {
                 setPositionDoubleTap(ev.getX(), ev.getY());
             }
 
@@ -261,7 +268,7 @@ public class Workspace extends BkViewPager implements DropTarget, IDragSource , 
 
     @Override
     public int getScreenCount() {
-        if (mFullSizeMode) {
+        if (mFullScreenMode) {
             return getChildCount();
         } else {
             if (getChildCount() == 1) {
@@ -282,21 +289,42 @@ public class Workspace extends BkViewPager implements DropTarget, IDragSource , 
         }
     }
 
+    @Override
+    protected void snapToScreen(int whichScreen, int velocity, boolean settle) {
+        super.snapToScreen(whichScreen, velocity, settle);
+
+        if (mFullScreenMode) {
+//            Log.d(TAG, "next screen " + mNextScreen + ", current " + mCurrentScreen);
+
+            if (mCurrentScreen < mNextScreen) {
+                ++mDoubleTapPosition;
+                mDoubleTapPosition %= 4;
+            } else if (mCurrentScreen > mNextScreen) {
+                --mDoubleTapPosition;
+                mDoubleTapPosition %= 4;
+            }
+        }
+    }
+
     private void setPositionDoubleTap(float x, float y) {
         float width  = getWidth() / 2;
         float height = getHeight() / 2;
 
-        Log.d(TAG, "x " + x + ",y " + y);
+//        Log.d(TAG, "x " + x + ",y " + y);
 
         if (x < width && y < height) {
-            mDoubleTapPosition = OnCellDoubleTapListener.TOP_LEFT;
+            mDoubleTapPosition = OnCellDoubleTapListener.LEFT_TOP;
         } else if (x > width && y < height) {
-            mDoubleTapPosition = OnCellDoubleTapListener.TOP_RIGHT;
+            mDoubleTapPosition = OnCellDoubleTapListener.RIGHT_TOP;
         } else if (x < width && y > height) {
-            mDoubleTapPosition = OnCellDoubleTapListener.BOTTOM_LEFT;
+            mDoubleTapPosition = OnCellDoubleTapListener.LEFT_BOTTOM;
         } else {
-            mDoubleTapPosition = OnCellDoubleTapListener.BOTTOM_RIGHT;
+            mDoubleTapPosition = OnCellDoubleTapListener.RIGHT_BOTTOM;
         }
+    }
+
+    public boolean isFullScreenMode() {
+        return mFullScreenMode;
     }
 
     ////////////////////////////////////////////////////////////////////////////////////
@@ -352,28 +380,14 @@ public class Workspace extends BkViewPager implements DropTarget, IDragSource , 
 
     @Override
     public void onDoubleTap(View view) {
-        Log.d(TAG, "double tap pos " + mDoubleTapPosition);
-        if (!mFullSizeMode) {
+        if (!mFullScreenMode) {
             for (int i=0; i<getChildCount(); ++i) {
                 if (getChildAt(i).equals(view)) {
                     mCurrentScreen = i;
                 }
             }
 
-            setFullSizeCell(true);
-        } else {
-            Log.d(TAG, "current screen " + mCurrentScreen);
-            if (mCurrentScreen > 0 && mDoubleTapPosition == OnCellDoubleTapListener.TOP_LEFT) {
-                mCurrentScreen = mCurrentScreen / 2 + 1;
-
-                Log.d(TAG, "current size " + mCurrentScreen);
-            } else if (mDoubleTapPosition == OnCellDoubleTapListener.BOTTOM_RIGHT) {
-                mCurrentScreen = mCurrentScreen / 2 - 1;
-            } else {
-                mCurrentScreen = mCurrentScreen / 2;
-            }
-
-            setFullSizeCell(false);
+            setFullScreenMode(true);
         }
     }
 }
