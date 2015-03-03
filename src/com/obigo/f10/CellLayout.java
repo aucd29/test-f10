@@ -86,7 +86,7 @@ public class CellLayout extends ViewGroup implements OnDoubleTapListener {
 //            int childWidthMeasureSpec = MeasureSpec.makeMeasureSpec(lp.width, MeasureSpec.EXACTLY);
 //            int childheightMeasureSpec = MeasureSpec.makeMeasureSpec(lp.height, MeasureSpec.EXACTLY);
 
-//            child.measure(childWidthMeasureSpec, childheightMeasureSpec);
+            child.measure(widthMeasureSpec, heightMeasureSpec);
         }
 
         setMeasuredDimension(widthSpecSize, heightSpecSize);

@@ -9,6 +9,15 @@
         android:id="@+id/workspace"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
+    
+    <FrameLayout
+        android:id="@+id/expand"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:background="#000000"
+        android:clickable="true"
+        android:visibility="invisible"
+        />
 
     <FrameLayout
         android:id="@+id/applist"

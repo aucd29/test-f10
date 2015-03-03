@@ -30,17 +30,19 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
     private DeleteZone mDeleteZone;
     private FrameLayout mAppList;
     private FrameLayout mSetting;
+    private FrameLayout mExpandLayout;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        mDragLayer  = (DragLayer) findViewById(R.id.drag_layer);
-        mWorkspace  = (Workspace) mDragLayer.findViewById(R.id.workspace);
-        mDeleteZone = (DeleteZone) mDragLayer.findViewById(R.id.delete_zone);
-        mAppList    = (FrameLayout) mDragLayer.findViewById(R.id.applist);
-        mSetting    = (FrameLayout) mDragLayer.findViewById(R.id.setting);
+        mDragLayer    = (DragLayer) findViewById(R.id.drag_layer);
+        mWorkspace    = (Workspace) mDragLayer.findViewById(R.id.workspace);
+        mDeleteZone   = (DeleteZone) mDragLayer.findViewById(R.id.delete_zone);
+        mAppList      = (FrameLayout) mDragLayer.findViewById(R.id.applist);
+        mSetting      = (FrameLayout) mDragLayer.findViewById(R.id.setting);
+        mExpandLayout = (FrameLayout) mDragLayer.findViewById(R.id.expand);
 
         mWorkspace.setDragger(mDragLayer);
         mWorkspace.setMainActivity(this);
@@ -57,6 +59,10 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
 
         if (Intent.ACTION_MAIN.equals(intent.getAction())) {
             if ((intent.getFlags() & Intent.FLAG_ACTIVITY_BROUGHT_TO_FRONT) != Intent.FLAG_ACTIVITY_BROUGHT_TO_FRONT) {
+                if (mWorkspace.isAnimating()) {
+                    return ;
+                }
+
                 if (isWorkspaceLocked()) {
                     onBackPressed();
                 } else if (mWorkspace.isFullScreenMode()) {
@@ -156,6 +162,10 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
 
     public void hideDeleteZone() {
         Translation.startY(mDeleteZone, DELZONE_MOVE_Y * -1, new AnimatorEndListener(mDeleteZone));
+    }
+
+    public View getExpandLayout() {
+        return mExpandLayout;
     }
 
     /*@Override

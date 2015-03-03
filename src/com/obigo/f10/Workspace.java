@@ -5,14 +5,23 @@
  */
 package com.obigo.f10;
 
+import android.animation.Animator;
 import android.content.Context;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
+import android.widget.FrameLayout;
+import android.widget.TextView;
 
 import com.obigo.f10.ui.BkViewPager;
+import com.obigo.f10.ui.Capture;
+import com.obigo.f10.ui.ani.AnimatorEndListener;
+import com.obigo.f10.ui.ani.Resize;
 import com.obigo.f10.ui.drag.DragScroller;
 import com.obigo.f10.ui.drag.DropTarget;
 import com.obigo.f10.ui.drag.IDragController;
@@ -29,6 +38,7 @@ public class Workspace extends BkViewPager implements DropTarget, IDragSource , 
     private IDragController mDragger;
     private OnLongClickListener mLongClickListener;
     private boolean mFullScreenMode = false;
+    private boolean mAnimating = false;
     private int mDoubleTapPosition;
 
     public Workspace(Context context, AttributeSet attrs) {
@@ -56,32 +66,36 @@ public class Workspace extends BkViewPager implements DropTarget, IDragSource , 
                 cell.setHalfMode(true);
                 cell.setOnCellDoubleTapListener(this);
 
-                if (i != 0) {
-                    for (int j=0; j<2; ++j) {
-                        ObigoView oview = new ObigoView(getContext());
+                TextView tv = new TextView(getContext());
+                tv.setText("pos " + i);
+                cell.addView(tv);
 
-                        cell.addView(oview);
-//                        Log.d(TAG, "added obigo view " + i + " : " + j);
-                    }
-                }
+//                if (i != 0) {
+//                    for (int j=0; j<2; ++j) {
+//                        ObigoView oview = new ObigoView(getContext());
+//
+//                        cell.addView(oview);
+////                        Log.d(TAG, "added obigo view " + i + " : " + j);
+//                    }
+//                }
             }
 
             int x = i % 5;
             switch (x) {
             case 0:
-                view.setBackgroundColor(0x7fff0000);
+                view.setBackgroundColor(0xffff0000);
                 break;
             case 1:
-                view.setBackgroundColor(0x7f00ff00);
+                view.setBackgroundColor(0xff00ff00);
                 break;
             case 2:
-                view.setBackgroundColor(0x7f0000ff);
+                view.setBackgroundColor(0xff0000ff);
                 break;
             case 3:
-                view.setBackgroundColor(0x7fff00ff);
+                view.setBackgroundColor(0xffff00ff);
                 break;
             case 4:
-                view.setBackgroundColor(0x7f00ffff);
+                view.setBackgroundColor(0xff00ffff);
                 break;
             }
 
@@ -109,27 +123,6 @@ public class Workspace extends BkViewPager implements DropTarget, IDragSource , 
                 break;
             }
         }
-    }
-
-    private void setFullScreenMode(boolean mode) {
-        setBeastSwipeMode(!mode);
-        setEdgeEventMode(!mode);
-        setScrollByChildWidth(!mode);
-        mFullScreenMode = mode;
-
-        requestLayout();
-    }
-
-    public void resetScreenMode() {
-        if (mCurrentScreen > 0 && mDoubleTapPosition == OnCellDoubleTapListener.LEFT_TOP) {
-            mCurrentScreen = mCurrentScreen / 2 + 1;
-        } else if (mDoubleTapPosition == OnCellDoubleTapListener.RIGHT_BOTTOM) {
-            mCurrentScreen = mCurrentScreen / 2 - 1;
-        } else {
-            mCurrentScreen = mCurrentScreen / 2;
-        }
-
-        setFullScreenMode(false);
     }
 
     ////////////////////////////////////////////////////////////////////////////////////
@@ -306,26 +299,6 @@ public class Workspace extends BkViewPager implements DropTarget, IDragSource , 
         }
     }
 
-    private void setPositionDoubleTap(float x, float y) {
-        float width  = getWidth() / 2;
-        float height = getHeight() / 2;
-
-//        Log.d(TAG, "x " + x + ",y " + y);
-
-        if (x < width && y < height) {
-            mDoubleTapPosition = OnCellDoubleTapListener.LEFT_TOP;
-        } else if (x > width && y < height) {
-            mDoubleTapPosition = OnCellDoubleTapListener.RIGHT_TOP;
-        } else if (x < width && y > height) {
-            mDoubleTapPosition = OnCellDoubleTapListener.LEFT_BOTTOM;
-        } else {
-            mDoubleTapPosition = OnCellDoubleTapListener.RIGHT_BOTTOM;
-        }
-    }
-
-    public boolean isFullScreenMode() {
-        return mFullScreenMode;
-    }
 
     ////////////////////////////////////////////////////////////////////////////////////
     //
@@ -374,20 +347,105 @@ public class Workspace extends BkViewPager implements DropTarget, IDragSource , 
 
     ////////////////////////////////////////////////////////////////////////////////////
     //
-    // interface OnCellDoubleTapListener
+    // DOUBLE TAP EVENT (FULL SCREEN)
     //
     ////////////////////////////////////////////////////////////////////////////////////
 
     @Override
     public void onDoubleTap(View view) {
         if (!mFullScreenMode) {
+            mAnimating = true;
+
             for (int i=0; i<getChildCount(); ++i) {
                 if (getChildAt(i).equals(view)) {
                     mCurrentScreen = i;
                 }
             }
 
-            setFullScreenMode(true);
+            final View expandLayout = mActivity.getExpandLayout();
+            FrameLayout.LayoutParams lp = new FrameLayout.LayoutParams(getWidth() / 2, mCurrentScreen == 0 ? getHeight() : getHeight() / 2);
+
+            if (mCurrentScreen == 0 || mDoubleTapPosition == OnCellDoubleTapListener.LEFT_TOP) {
+                lp.gravity = Gravity.LEFT | Gravity.TOP;
+            } else if (mDoubleTapPosition == OnCellDoubleTapListener.LEFT_BOTTOM) {
+                lp.gravity = Gravity.LEFT | Gravity.BOTTOM;
+            } else if (mDoubleTapPosition == OnCellDoubleTapListener.RIGHT_TOP) {
+                lp.gravity = Gravity.RIGHT | Gravity.TOP;
+            } else {
+                lp.gravity = Gravity.RIGHT | Gravity.BOTTOM;
+            }
+
+            Drawable drawable = new BitmapDrawable(getContext().getResources(), Capture.get(view));
+            expandLayout.setScaleX(1);
+            expandLayout.setScaleY(1);
+            expandLayout.setTranslationX(1);
+            expandLayout.setTranslationY(1);
+            expandLayout.setLayoutParams(lp);
+            expandLayout.setBackground(drawable);
+            expandLayout.setVisibility(View.VISIBLE);
+
+            Resize.expand(expandLayout, mCurrentScreen, mDoubleTapPosition, getWidth(), getHeight(), new AnimatorEndListener(expandLayout) {
+                @Override
+                public void onAnimationEnd(Animator animation) {
+                    super.onAnimationEnd(animation);
+                    setFullScreenMode(true);
+
+//                    if (expandLayout.getTag() != null) {
+//                        Bitmap bmp = ((Bitmap) expandLayout.getTag());
+//                        bmp.recycle();
+//                        bmp = null;
+////
+//                        expandLayout.setTag(null);
+//                    }
+
+                    mAnimating = false;
+                }
+            });
         }
     }
+
+    private void setPositionDoubleTap(float x, float y) {
+        float width  = getWidth() / 2;
+        float height = getHeight() / 2;
+
+        if (x < width && y < height) {
+            mDoubleTapPosition = OnCellDoubleTapListener.LEFT_TOP;
+        } else if (x > width && y < height) {
+            mDoubleTapPosition = OnCellDoubleTapListener.RIGHT_TOP;
+        } else if (x < width && y > height) {
+            mDoubleTapPosition = OnCellDoubleTapListener.LEFT_BOTTOM;
+        } else {
+            mDoubleTapPosition = OnCellDoubleTapListener.RIGHT_BOTTOM;
+        }
+    }
+
+    private void setFullScreenMode(boolean mode) {
+        setBeastSwipeMode(!mode);
+        setEdgeEventMode(!mode);
+        setScrollByChildWidth(!mode);
+        mFullScreenMode = mode;
+
+        requestLayout();
+    }
+
+    public void resetScreenMode() {
+        if (mCurrentScreen > 0 && mDoubleTapPosition == OnCellDoubleTapListener.LEFT_TOP) {
+            mCurrentScreen = mCurrentScreen / 2 + 1;
+        } else if (mDoubleTapPosition == OnCellDoubleTapListener.RIGHT_BOTTOM) {
+            mCurrentScreen = mCurrentScreen / 2 - 1;
+        } else {
+            mCurrentScreen = mCurrentScreen / 2;
+        }
+
+        setFullScreenMode(false);
+    }
+
+    public boolean isFullScreenMode() {
+        return mFullScreenMode;
+    }
+
+    public boolean isAnimating() {
+        return mAnimating;
+    }
+
 }
