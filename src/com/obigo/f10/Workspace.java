@@ -16,6 +16,7 @@ import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.View.OnDragListener;
 import android.view.View.OnLongClickListener;
 import android.widget.FrameLayout;
 import android.widget.TextView;
@@ -28,7 +29,7 @@ import com.obigo.f10.ui.drag.IDragController;
 import com.obigo.f10.ui.events.OnCellDoubleTapListener;
 
 
-public class Workspace extends BkViewPager implements OnCellDoubleTapListener, OnLongClickListener {
+public class Workspace extends BkViewPager implements OnCellDoubleTapListener, OnLongClickListener, OnDragListener {
     private static final String TAG = "Workspace";
 
     private MainActivity mActivity;
@@ -64,10 +65,10 @@ public class Workspace extends BkViewPager implements OnCellDoubleTapListener, O
                 case DragEvent.ACTION_DRAG_STARTED:
                     break;
                 case DragEvent.ACTION_DRAG_ENTERED:
-                    Log.d(TAG, "@@ work drag entered");
+                    Log.d(TAG, "@@ work drag entered (" + v.getTag() + ")");
                     break;
                 case DragEvent.ACTION_DRAG_EXITED:
-                    Log.d(TAG, "@@ work drag exited");
+                    Log.d(TAG, "@@ work drag exited (" + v.getTag() + ")");
                     break;
                 case DragEvent.ACTION_DRAG_LOCATION:
 //                        Log.d(TAG, "@@ drag location");
@@ -75,7 +76,7 @@ public class Workspace extends BkViewPager implements OnCellDoubleTapListener, O
                 case DragEvent.ACTION_DRAG_ENDED:
                     break;
                 case DragEvent.ACTION_DROP:
-                    Log.d(TAG, "@@ work action drop");
+                    Log.d(TAG, "@@ work action drop (" + v.getTag() + ")");
                     mActivity.hideDeleteZone();
                     break;
                 }
@@ -92,6 +93,8 @@ public class Workspace extends BkViewPager implements OnCellDoubleTapListener, O
                 cell.setHalfMode(true);
                 cell.setOnCellDoubleTapListener(this);
                 cell.setOnLongClickListener(this);
+                cell.setOnDragListener(this);
+                cell.setTag("" + i);
 
                 TextView tv = new TextView(getContext());
                 tv.setText("pos " + i);
@@ -506,5 +509,42 @@ public class Workspace extends BkViewPager implements OnCellDoubleTapListener, O
         );
 
         return false;
+    }
+
+    @Override
+    public boolean onDrag(View v, DragEvent event) {
+        switch (event.getAction()) {
+        case DragEvent.ACTION_DRAG_STARTED:
+//            Log.d(TAG, "@@ cell drag started (" + v.getTag() + ")");
+            break;
+        case DragEvent.ACTION_DRAG_ENTERED:
+            Log.d(TAG, "@@ cell drag entered (" + v.getTag() + ")");
+            break;
+        case DragEvent.ACTION_DRAG_EXITED:
+            Log.d(TAG, "@@ cell drag exited (" + v.getTag() + ")");
+            break;
+        case DragEvent.ACTION_DRAG_LOCATION:
+            break;
+        case DragEvent.ACTION_DRAG_ENDED:
+//            Log.d(TAG, "@@ cell drag ended (" + v.getTag() + ")");
+            break;
+        case DragEvent.ACTION_DROP:
+            mActivity.hideDeleteZone();
+
+            int count = getChildCount();
+            for (int i=0; i<count; ++i) {
+                if (getChildAt(i).equals(v)) {
+                    removeView(mDragView);
+                    addView(mDragView, i);
+                    requestLayout();
+
+                    break;
+                }
+            }
+
+//            Log.d(TAG, "@@ cell action drop (" + v.getTag() + ")");
+            break;
+        }
+        return true;
     }
 }
