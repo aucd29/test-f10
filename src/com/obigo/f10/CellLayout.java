@@ -7,6 +7,7 @@ package com.obigo.f10;
 
 import android.content.Context;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.GestureDetector;
 import android.view.GestureDetector.OnDoubleTapListener;
 import android.view.MotionEvent;
@@ -124,6 +125,7 @@ public class CellLayout extends ViewGroup implements OnDoubleTapListener {
         case MotionEvent.ACTION_MOVE:
             return true;
         case MotionEvent.ACTION_DOWN:
+
 //            Log.d(TAG, "    @@ inter down");
 //            super.onInterceptTouchEvent(ev);
             break;
@@ -177,6 +179,8 @@ public class CellLayout extends ViewGroup implements OnDoubleTapListener {
 
     @Override
     public boolean onDoubleTap(MotionEvent e) {
+        Log.d(TAG, "@@ cell on double tap");
+
         if (mDblTapListener != null) {
             mDblTapListener.onDoubleTap(this);
         }

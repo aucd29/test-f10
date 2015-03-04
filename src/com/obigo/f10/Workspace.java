@@ -11,25 +11,24 @@ import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
 import android.util.Log;
+import android.view.DragEvent;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.View.OnLongClickListener;
 import android.widget.FrameLayout;
 import android.widget.TextView;
 
 import com.obigo.f10.ui.BkViewPager;
 import com.obigo.f10.ui.Capture;
 import com.obigo.f10.ui.ani.AnimatorEndListener;
-import com.obigo.f10.ui.ani.Resize;
-import com.obigo.f10.ui.drag.DragScroller;
-import com.obigo.f10.ui.drag.DropTarget;
+import com.obigo.f10.ui.ani.ResizeHelper;
 import com.obigo.f10.ui.drag.IDragController;
-import com.obigo.f10.ui.drag.IDragSource;
 import com.obigo.f10.ui.events.OnCellDoubleTapListener;
 
 
-public class Workspace extends BkViewPager implements DropTarget, IDragSource , DragScroller, OnCellDoubleTapListener {
+public class Workspace extends BkViewPager implements OnCellDoubleTapListener, OnLongClickListener {
     private static final String TAG = "Workspace";
 
     private MainActivity mActivity;
@@ -40,6 +39,7 @@ public class Workspace extends BkViewPager implements DropTarget, IDragSource , 
     private boolean mFullScreenMode = false;
     private boolean mAnimating = false;
     private int mDoubleTapPosition;
+    private View mDragView = null;
 
     public Workspace(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -57,6 +57,32 @@ public class Workspace extends BkViewPager implements DropTarget, IDragSource , 
         setScrollByChildWidth(true);
         setBeastSwipeMode(true);
         setEdgeEventMode(true);
+        setOnDragListener(new OnDragListener() {
+            @Override
+            public boolean onDrag(View v, DragEvent event) {
+                switch (event.getAction()) {
+                case DragEvent.ACTION_DRAG_STARTED:
+                    break;
+                case DragEvent.ACTION_DRAG_ENTERED:
+                    Log.d(TAG, "@@ work drag entered");
+                    break;
+                case DragEvent.ACTION_DRAG_EXITED:
+                    Log.d(TAG, "@@ work drag exited");
+                    break;
+                case DragEvent.ACTION_DRAG_LOCATION:
+//                        Log.d(TAG, "@@ drag location");
+                    break;
+                case DragEvent.ACTION_DRAG_ENDED:
+                    break;
+                case DragEvent.ACTION_DROP:
+                    Log.d(TAG, "@@ work action drop");
+                    mActivity.hideDeleteZone();
+                    break;
+                }
+
+                return true;
+            }
+        });
 
         for (int i=0; i<mMaxCellCount; ++i) {
             View view = LayoutInflater.from(getContext()).inflate(R.layout.workspace_screen, this, false);
@@ -65,6 +91,7 @@ public class Workspace extends BkViewPager implements DropTarget, IDragSource , 
                 CellLayout cell = (CellLayout) view;
                 cell.setHalfMode(true);
                 cell.setOnCellDoubleTapListener(this);
+                cell.setOnLongClickListener(this);
 
                 TextView tv = new TextView(getContext());
                 tv.setText("pos " + i);
@@ -274,12 +301,11 @@ public class Workspace extends BkViewPager implements DropTarget, IDragSource , 
 
     @Override
     public void setOnLongClickListener(OnLongClickListener l) {
-        mLongClickListener = l;
-
-        final int count = getChildCount();
-        for (int i = 0; i < count; i++) {
-            getChildAt(i).setOnLongClickListener(l);
-        }
+//            mLongClickListener = l;
+//            final int count = getChildCount();
+//            for (int i = 0; i < count; i++) {
+//                getChildAt(i).setOnLongClickListener(l);
+//            }
     }
 
     @Override
@@ -300,52 +326,6 @@ public class Workspace extends BkViewPager implements DropTarget, IDragSource , 
 
 //            Log.d(TAG, "## next screen " + mNextScreen + ", current " + mCurrentScreen + ", tap " + mDoubleTapPosition);
         }
-    }
-
-
-    ////////////////////////////////////////////////////////////////////////////////////
-    //
-    // DRAG
-    //
-    ////////////////////////////////////////////////////////////////////////////////////
-
-    public void setDragger(IDragController dragger) {
-        mDragger = dragger;
-    }
-
-    @Override
-    public void scrollLeft() {
-        Log.d(TAG, "scroll left");
-    }
-
-    @Override
-    public void scrollRight() {
-        Log.d(TAG, "scroll right");
-    }
-
-    @Override
-    public void onDropCompleted(View target, boolean success) {
-    }
-
-    @Override
-    public void onDrop(IDragSource source, int x, int y, int xOffset, int yOffset, Object dragInfo) {
-    }
-
-    @Override
-    public void onDragEnter(IDragSource source, int x, int y, int xOffset, int yOffset, Object dragInfo) {
-    }
-
-    @Override
-    public void onDragOver(IDragSource source, int x, int y, int xOffset, int yOffset, Object dragInfo) {
-    }
-
-    @Override
-    public void onDragExit(IDragSource source, int x, int y, int xOffset, int yOffset, Object dragInfo) {
-    }
-
-    @Override
-    public boolean acceptDrop(IDragSource source, int x, int y, int xOffset, int yOffset, Object dragInfo) {
-        return false;
     }
 
     ////////////////////////////////////////////////////////////////////////////////////
@@ -387,7 +367,7 @@ public class Workspace extends BkViewPager implements DropTarget, IDragSource , 
             expandLayout.setBackground(drawable);
             expandLayout.setVisibility(View.VISIBLE);
 
-            Resize.expand(expandLayout, mCurrentScreen, mDoubleTapPosition, getWidth(), getHeight(), new AnimatorEndListener(expandLayout) {
+            ResizeHelper.expand(expandLayout, mCurrentScreen, mDoubleTapPosition, getWidth(), getHeight(), new AnimatorEndListener(expandLayout) {
                 @Override
                 public void onAnimationEnd(Animator animation) {
                     super.onAnimationEnd(animation);
@@ -458,8 +438,8 @@ public class Workspace extends BkViewPager implements DropTarget, IDragSource , 
         expandLayout.setBackground(drawable);
         expandLayout.setVisibility(View.VISIBLE);
 
-        traceTapPosition(mDoubleTapPosition);
-        Resize.collapse(expandLayout, prevScreen, mDoubleTapPosition, getWidth(), getHeight(), new AnimatorEndListener(expandLayout) {
+//        traceTapPosition(mDoubleTapPosition);
+        ResizeHelper.collapse(expandLayout, prevScreen, mDoubleTapPosition, getWidth(), getHeight(), new AnimatorEndListener(expandLayout) {
             @Override
             public void onAnimationEnd(Animator animation) {
                 super.onAnimationEnd(animation);
@@ -493,5 +473,38 @@ public class Workspace extends BkViewPager implements DropTarget, IDragSource , 
             Log.d(TAG, "@@ tap pos RIGHT BOTTOM");
             break;
         }
+    }
+
+    ////////////////////////////////////////////////////////////////////////////////////
+    //
+    // DRAG AND DROP
+    //
+    ////////////////////////////////////////////////////////////////////////////////////
+
+    public void removeDropView() {
+        if (mDragView != null) {
+            removeView(mDragView);
+            mDragView = null;
+        }
+    }
+
+    @Override
+    public boolean onLongClick(View v) {
+        if (v.equals(getChildAt(0))) { // blocking first layout
+            return false;
+        }
+
+        mActivity.showDeleteZone();
+        mDragView = v;
+
+//        ClipData dragData = ClipData.newPlainText("1", "2");
+        View.DragShadowBuilder myShadow = new DragShadowBuilder(v);
+        v.startDrag(null, // the data to be dragged
+                myShadow, // the drag shadow builder
+                null, // no need to use local data
+                0 // flags (not currently used, set to 0)
+        );
+
+        return false;
     }
 }

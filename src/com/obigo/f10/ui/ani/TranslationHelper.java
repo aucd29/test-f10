@@ -30,7 +30,7 @@ import android.view.View;
  *
  * @author <a href="mailto:aucd29@gmail.com">Burke Choi</a>
  */
-public class Translation {
+public class TranslationHelper {
     public static void startX(View view, float dpMoveX, AnimatorListener l) {
         start(view, 0, dpMoveX, l);
     }

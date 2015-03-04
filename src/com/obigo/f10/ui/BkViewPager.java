@@ -73,7 +73,7 @@ public class BkViewPager extends ViewGroup {
     private static final float BASELINE_FLING_VELOCITY = 2500.f;
     private static final float FLING_VELOCITY_INFLUENCE = 0.4f;
 
-    private boolean mScrolllByChildWidth = false;
+    private boolean mScrollByChildWidth = false;
     private boolean mBeastMode = false;
     private boolean mEdgeEventMode = false;
 
@@ -438,7 +438,7 @@ public class BkViewPager extends ViewGroup {
                 velocityTracker.computeCurrentVelocity(1000, mMaximumVelocity);
                 final int velocityX = (int) velocityTracker.getXVelocity(mActivePointerId);
 
-                final int screenWidth = mScrolllByChildWidth ? getWidth() / 2 : getWidth();
+                final int screenWidth = mScrollByChildWidth ? getWidth() / 2 : getWidth();
                 final int whichScreen = (getScrollX() + (screenWidth / 2)) / screenWidth;
                 final float scrolledPos = (float) getScrollX() / screenWidth;
 
@@ -526,7 +526,7 @@ public class BkViewPager extends ViewGroup {
         }
 
         final int screenDelta = Math.max(1, Math.abs(whichScreen - mCurrentScreen));
-        final int newX = whichScreen * (mScrolllByChildWidth ? getWidth() / 2 : getWidth());
+        final int newX = whichScreen * (mScrollByChildWidth ? getWidth() / 2 : getWidth());
         final int delta = newX - getScrollX();
         int duration = (screenDelta + 1) * 100;
 
@@ -568,6 +568,10 @@ public class BkViewPager extends ViewGroup {
 
     public boolean isScrollFinished() {
         return mScroller.isFinished();
+    }
+
+    public boolean allowLongPress() {
+        return mAllowLongPress;
     }
 
     ////////////////////////////////////////////////////////////////////////////////////
@@ -637,7 +641,7 @@ public class BkViewPager extends ViewGroup {
     }
 
     public void setScrollByChildWidth(boolean childWidth) {
-        mScrolllByChildWidth = childWidth;
+        mScrollByChildWidth = childWidth;
     }
 
     public void setBeastSwipeMode(boolean beastMode) {

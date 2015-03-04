@@ -12,9 +12,8 @@ import android.view.animation.Interpolator;
 
 import com.obigo.f10.ui.events.OnCellDoubleTapListener;
 
-public class Resize {
+public class ResizeHelper {
     private static final String TAG = "Resize";
-//    private static final int ANI_DURATION = 1000;
     private static final int ANI_DURATION = 300;
 
     public static void expand(final View view, int screen, int tabPos, int toWidth, int toHeight, AnimatorEndListener l) {
@@ -82,8 +81,6 @@ public class Resize {
             transX *= -1;
         } else if (tabPos == OnCellDoubleTapListener.RIGHT_TOP) {
             transY *= -1;
-        } else {
-
         }
 
         ObjectAnimator aniTx = ObjectAnimator.ofFloat(view,  "translationX", transX);

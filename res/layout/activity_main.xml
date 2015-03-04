@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.obigo.f10.ui.drag.DragLayer xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:launcher="http://schemas.android.com/apk/res/com.obigo.res"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/drag_layer"
     android:layout_width="match_parent"
     android:layout_height="match_parent" >
@@ -9,54 +8,51 @@
         android:id="@+id/workspace"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
-    
+
     <FrameLayout
         android:id="@+id/expand"
         android:layout_width="30dp"
         android:layout_height="30dp"
         android:background="#000000"
         android:clickable="true"
-        android:visibility="invisible"
-        />
+        android:visibility="invisible" />
 
     <FrameLayout
         android:id="@+id/applist"
         android:layout_width="400dp"
         android:layout_height="match_parent"
+        android:layout_marginLeft="-401dp"
         android:background="#00ffff"
         android:clickable="true"
-        android:visibility="invisible"
-        android:layout_marginLeft="-401dp" 
-        >
+        android:visibility="invisible" >
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:text="APP LIST"
             android:layout_gravity="center|center_vertical"
-            android:gravity="center|center_vertical" />
+            android:gravity="center|center_vertical"
+            android:text="APP LIST" />
     </FrameLayout>
 
     <FrameLayout
         android:id="@+id/setting"
         android:layout_width="200dp"
         android:layout_height="200dp"
+        android:layout_gravity="right"
+        android:layout_marginTop="-200dp"
         android:background="#00ffff"
         android:clickable="true"
-        android:layout_gravity="right"
-        android:visibility="invisible" 
-        android:layout_marginTop="-200dp"
-        >
+        android:visibility="invisible" >
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:text="SETTINGS"
             android:layout_gravity="center|center_vertical"
-            android:gravity="center|center_vertical" />
+            android:gravity="center|center_vertical"
+            android:text="SETTINGS" />
     </FrameLayout>
-    
-    <com.obigo.f10.DeleteZone
+
+    <ImageView
         android:id="@+id/delete_zone"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -66,5 +62,5 @@
         android:scaleType="center"
         android:src="@drawable/delete_zone_selector"
         android:visibility="invisible" />
-    
-</com.obigo.f10.ui.drag.DragLayer>
+
+</FrameLayout>
