@@ -287,15 +287,18 @@ public class Workspace extends BkViewPager implements DropTarget, IDragSource , 
         super.snapToScreen(whichScreen, velocity, settle);
 
         if (mFullScreenMode) {
-//            Log.d(TAG, "next screen " + mNextScreen + ", current " + mCurrentScreen);
+//            Log.d(TAG, "@@ next screen " + mNextScreen + ", current " + mCurrentScreen + ", tap " + mDoubleTapPosition);
 
             if (mCurrentScreen < mNextScreen) {
                 ++mDoubleTapPosition;
                 mDoubleTapPosition %= 4;
             } else if (mCurrentScreen > mNextScreen) {
-                --mDoubleTapPosition;
-                mDoubleTapPosition %= 4;
+                if (--mDoubleTapPosition < 0) {
+                    mDoubleTapPosition = OnCellDoubleTapListener.RIGHT_BOTTOM;
+                }
             }
+
+//            Log.d(TAG, "## next screen " + mNextScreen + ", current " + mCurrentScreen + ", tap " + mDoubleTapPosition);
         }
     }
 
@@ -353,7 +356,7 @@ public class Workspace extends BkViewPager implements DropTarget, IDragSource , 
 
     @Override
     public void onDoubleTap(View view) {
-        if (!mFullScreenMode) {
+        if (!mFullScreenMode && !mActivity.isWorkspaceLocked()) {
             mAnimating = true;
 
             for (int i=0; i<getChildCount(); ++i) {
@@ -453,9 +456,9 @@ public class Workspace extends BkViewPager implements DropTarget, IDragSource , 
         FrameLayout.LayoutParams lp = new FrameLayout.LayoutParams(getWidth(), getHeight());
         expandLayout.setLayoutParams(lp);
         expandLayout.setBackground(drawable);
-//        expandLayout.setBackgroundColor(0xff000000);
         expandLayout.setVisibility(View.VISIBLE);
 
+        traceTapPosition(mDoubleTapPosition);
         Resize.collapse(expandLayout, prevScreen, mDoubleTapPosition, getWidth(), getHeight(), new AnimatorEndListener(expandLayout) {
             @Override
             public void onAnimationEnd(Animator animation) {
@@ -475,4 +478,20 @@ public class Workspace extends BkViewPager implements DropTarget, IDragSource , 
         return mAnimating;
     }
 
+    private void traceTapPosition(int pos) {
+        switch (pos) {
+        case OnCellDoubleTapListener.LEFT_TOP:
+            Log.d(TAG, "@@ tap pos LEFT TOP");
+            break;
+        case OnCellDoubleTapListener.RIGHT_TOP:
+            Log.d(TAG, "@@ tap pos RIGHT TOP");
+            break;
+        case OnCellDoubleTapListener.LEFT_BOTTOM:
+            Log.d(TAG, "@@ tap pos LEFT BOTTOM");
+            break;
+        case OnCellDoubleTapListener.RIGHT_BOTTOM:
+            Log.d(TAG, "@@ tap pos RIGHT BOTTOM");
+            break;
+        }
+    }
 }
