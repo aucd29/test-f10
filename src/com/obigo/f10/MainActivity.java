@@ -22,9 +22,9 @@ import com.obigo.f10.ui.ani.TranslationHelper;
 public class MainActivity extends FragmentActivity implements View.OnClickListener, OnLongClickListener{
     private static final String TAG = "MainActivity";
 
-    private static final int APPLIST_MOVE_X = 400;
-    private static final int SETTING_MOVE_Y = 200;
-    private static final int DELZONE_MOVE_Y = 40;
+    private static final int APPLIST_MOVE_X = -400;
+    private static final int SETTING_MOVE_Y = -200;
+    private static final int DELZONE_MOVE_Y = -40;
 
     private FrameLayout mDragLayer;
     private Workspace mWorkspace;
@@ -149,34 +149,34 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
     public void showAppList() {
         if (mAppList.getVisibility() == View.INVISIBLE) {
             mAppList.setVisibility(View.VISIBLE);
-            TranslationHelper.startX(mAppList, APPLIST_MOVE_X, null);
+            TranslationHelper.startX(mAppList, 0, null);
         }
     }
 
     public void hideAppList() {
-        TranslationHelper.startX(mAppList, APPLIST_MOVE_X * -1, new AnimatorEndListener(mAppList));
+        TranslationHelper.startX(mAppList, APPLIST_MOVE_X, new AnimatorEndListener(mAppList));
     }
 
     public void showSettingMenu() {
         if (mSetting.getVisibility() == View.INVISIBLE) {
             mSetting.setVisibility(View.VISIBLE);
-            TranslationHelper.startY(mSetting, SETTING_MOVE_Y, null);
+            TranslationHelper.startY(mSetting, 0, null);
         }
     }
 
     public void hideSettingMenu() {
-        TranslationHelper.startY(mSetting, SETTING_MOVE_Y * -1, new AnimatorEndListener(mSetting));
+        TranslationHelper.startY(mSetting, SETTING_MOVE_Y, new AnimatorEndListener(mSetting));
     }
 
     public void showDeleteZone() {
         if (mDeleteZone.getVisibility() == View.INVISIBLE) {
             mDeleteZone.setVisibility(View.VISIBLE);
-            TranslationHelper.startY(mDeleteZone, DELZONE_MOVE_Y, null);
+            TranslationHelper.startY(mDeleteZone, 0, null);
         }
     }
 
     public void hideDeleteZone() {
-        TranslationHelper.startY(mDeleteZone, DELZONE_MOVE_Y * -1, new AnimatorEndListener(mDeleteZone));
+        TranslationHelper.startY(mDeleteZone, DELZONE_MOVE_Y, new AnimatorEndListener(mDeleteZone));
     }
 
     public View getExpandLayout() {

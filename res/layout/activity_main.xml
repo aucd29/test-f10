@@ -21,9 +21,9 @@
         android:id="@+id/applist"
         android:layout_width="400dp"
         android:layout_height="match_parent"
-        android:layout_marginLeft="-401dp"
         android:background="#00ffff"
         android:clickable="true"
+        android:translationX="-400dp"
         android:visibility="invisible" >
 
         <TextView
@@ -39,7 +39,7 @@
         android:layout_width="200dp"
         android:layout_height="200dp"
         android:layout_gravity="right"
-        android:layout_marginTop="-200dp"
+        android:translationY="-200dp"
         android:background="#00ffff"
         android:clickable="true"
         android:visibility="invisible" >
@@ -58,7 +58,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="top|center_horizontal"
         android:paddingTop="20dp"
-        android:layout_marginTop="-40dp"
+        android:translationY="-40dp"
         android:scaleType="center"
         android:src="@drawable/delete_zone_selector"
         android:visibility="invisible" />
