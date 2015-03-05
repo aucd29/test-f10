@@ -31,18 +31,22 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
     private FrameLayout mSetting;
     private FrameLayout mExpandLayout;
     private ImageView mDeleteZone;
+    private FrameLayout mLeftScroller;
+    private FrameLayout mRightScroller;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        mDragLayer    = (FrameLayout) findViewById(R.id.drag_layer);
-        mWorkspace    = (Workspace) mDragLayer.findViewById(R.id.workspace);
-        mDeleteZone   = (ImageView) mDragLayer.findViewById(R.id.delete_zone);
-        mAppList      = (FrameLayout) mDragLayer.findViewById(R.id.applist);
-        mSetting      = (FrameLayout) mDragLayer.findViewById(R.id.setting);
-        mExpandLayout = (FrameLayout) mDragLayer.findViewById(R.id.expand);
+        mDragLayer     = (FrameLayout) findViewById(R.id.drag_layer);
+        mWorkspace     = (Workspace) mDragLayer.findViewById(R.id.workspace);
+        mAppList       = (FrameLayout) mDragLayer.findViewById(R.id.applist);
+        mSetting       = (FrameLayout) mDragLayer.findViewById(R.id.setting);
+        mExpandLayout  = (FrameLayout) mDragLayer.findViewById(R.id.expand);
+        mDeleteZone    = (ImageView) mDragLayer.findViewById(R.id.delete_zone);
+        mLeftScroller  = (FrameLayout) mDragLayer.findViewById(R.id.left_scroller);
+        mRightScroller = (FrameLayout) mDragLayer.findViewById(R.id.right_scroller);
 
         mWorkspace.setMainActivity(this);
         mDeleteZone.setOnDragListener(new OnDragListener() {
@@ -59,6 +63,54 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
                     break;
                 case DragEvent.ACTION_DRAG_EXITED:
                     Log.d(TAG, "@@ delzone drag exited");
+                    break;
+                }
+
+                return true;
+            }
+        });
+
+        mLeftScroller.setOnDragListener(new OnDragListener() {
+            @Override
+            public boolean onDrag(View v, DragEvent event) {
+                switch (event.getAction()) {
+                case DragEvent.ACTION_DROP:
+                    return false;
+                case DragEvent.ACTION_DRAG_ENTERED:
+                    Log.d(TAG, "@@ left scroll drag entered");
+//                    mWorkspace.snapToScreen(mWorkspace.getCurrentScreen() - 1);
+                    break;
+                case DragEvent.ACTION_DRAG_EXITED:
+                    Log.d(TAG, "@@ left scroll drag exited");
+                    break;
+                }
+
+                return true;
+            }
+        });
+
+        mRightScroller.setOnDragListener(new OnDragListener() {
+            @Override
+            public boolean onDrag(View v, DragEvent event) {
+                switch (event.getAction()) {
+                case DragEvent.ACTION_DROP:
+
+//                    View view = mWorkspace.getChildAt(index)
+
+                    if (v.equals(mRightScroller)) {
+                        Log.d(TAG, "same ");
+                    }
+
+
+
+
+                    return false;
+                case DragEvent.ACTION_DRAG_ENTERED:
+                    Log.d(TAG, "@@ right scroll drag entered");
+//                    mWorkspace.snapToScreen(mWorkspace.getCurrentScreen() + 1);
+                    break;
+                case DragEvent.ACTION_DRAG_EXITED:
+                    Log.d(TAG, "@@ right scroll drag exited");
                     break;
                 }
 

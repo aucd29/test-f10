@@ -63,6 +63,26 @@
         android:translationY="-40dp"
         android:scaleType="center"
         android:src="@drawable/delete_zone_selector"
+        
         android:visibility="invisible" />
+    
+    <FrameLayout
+        android:id="@+id/right_scroller"
+        android:layout_width="40dp"
+        android:layout_height="match_parent"
+        android:layout_gravity="right"
+        android:background="#7fffffff"
+        android:clickable="true"
+        android:visibility="gone" />
+    
+     <FrameLayout
+        android:id="@+id/left_scroller"
+        android:layout_width="40dp"
+        android:layout_height="match_parent"
+        android:layout_gravity="left"
+        android:clickable="true"
+        android:background="#7fffffff"
+        android:visibility="gone" />
+    
 
 </FrameLayout>

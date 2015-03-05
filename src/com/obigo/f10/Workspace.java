@@ -38,6 +38,36 @@ public class Workspace extends BkViewPager implements OnCellDoubleTapListener, O
     private boolean mAnimating = false;
     private int mDoubleTapPosition;
     private View mDragView = null;
+    private ScrollRunnable mScrollRunnable = new ScrollRunnable();
+
+    private static final int SCROLL_OUTSIDE_ZONE = 0;
+    private static final int SCROLL_WAITING_IN_ZONE = 1;
+
+    private static final int SCROLL_DELAY = 600;
+    private static final int SCROLL_LEFT = 0;
+    private static final int SCROLL_RIGHT = 1;
+
+    private int mScrollState = SCROLL_OUTSIDE_ZONE;
+
+    private class ScrollRunnable implements Runnable {
+        private int mDirection;
+
+        ScrollRunnable() {
+        }
+
+        @Override
+        public void run() {
+            if (mDirection == SCROLL_LEFT) {
+                snapToScreen(mCurrentScreen - 1);
+            } else if (mDirection == SCROLL_RIGHT) {
+                snapToScreen(mCurrentScreen + 1);
+            }
+        }
+
+        void setDirection(int direction) {
+            mDirection = direction;
+        }
+    }
 
     public Workspace(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -68,7 +98,8 @@ public class Workspace extends BkViewPager implements OnCellDoubleTapListener, O
 //                    Log.d(TAG, "@@ work drag exited (" + v.getTag() + ")");
                     break;
                 case DragEvent.ACTION_DRAG_LOCATION:
-//                        Log.d(TAG, "@@ drag location");
+                    Log.d(TAG, "work drag location x=" + event.getX() + ", y=" + event.getY());
+                    postDelayed(mScrollRunnable, SCROLL_DELAY);
                     break;
                 case DragEvent.ACTION_DRAG_ENDED:
                     break;
@@ -509,18 +540,25 @@ public class Workspace extends BkViewPager implements OnCellDoubleTapListener, O
 //            Log.d(TAG, "@@ cell drag started (" + v.getTag() + ")");
             break;
         case DragEvent.ACTION_DRAG_ENTERED:
-            Log.d(TAG, "@@ cell drag entered (" + v.getTag() + ")");
+//            Log.d(TAG, "@@ cell drag entered (" + v.getTag() + ")");
             break;
         case DragEvent.ACTION_DRAG_EXITED:
-            Log.d(TAG, "@@ cell drag exited (" + v.getTag() + ")");
+//            Log.d(TAG, "@@ cell drag exited (" + v.getTag() + ")");
             break;
-        case DragEvent.ACTION_DRAG_LOCATION:
+        case DragEvent.ACTION_DRAG_LOCATION: {
+//            Log.d(TAG, "cell drag location x=" + event.getX() + ", y=" + event.getY());
             break;
+            }
         case DragEvent.ACTION_DRAG_ENDED:
 //            Log.d(TAG, "@@ cell drag ended (" + v.getTag() + ")");
             break;
         case DragEvent.ACTION_DROP: {
             mActivity.hideDeleteZone();
+
+            if (mDragView.equals(v)) {
+                return true;
+            }
+
             int count = getChildCount();
             int delPos = 1;
 
