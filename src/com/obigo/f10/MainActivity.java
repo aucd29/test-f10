@@ -48,6 +48,8 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
         mDeleteZone    = (DeleteZone) mDragLayer.findViewById(R.id.delete_zone);
 
         mDeleteZone.setMainActivity(this);
+        mDeleteZone.setDragController(mDragController);
+
         mWorkspace.setOnLongClickListener(this);
         mWorkspace.setMainActivity(this);
 
@@ -59,6 +61,9 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
         mDragController.setDragListener(mDeleteZone);
         mDragController.setScrollView(mDragLayer);
         mDragController.setMoveTarget(mWorkspace);
+
+        mDragController.addDropTarget(mWorkspace);
+        mDragController.addDropTarget(mDeleteZone);
     }
 
     @Override
@@ -84,9 +89,8 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
 
     @Override
     public boolean onLongClick(View v) {
-
         if (v instanceof CellLayout && mWorkspace.allowLongPress()) {
-            mWorkspace.startDrag();
+            mWorkspace.startDrag(v);
         }
 
         return false;
@@ -151,16 +155,16 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
         TranslationHelper.startY(mSetting, SETTING_MOVE_Y, new AnimatorEndListener(mSetting));
     }
 
-    public void showDeleteZone() {
-        if (mDeleteZone.getVisibility() == View.INVISIBLE) {
-            mDeleteZone.setVisibility(View.VISIBLE);
-            TranslationHelper.startY(mDeleteZone, 0, null);
-        }
-    }
-
-    public void hideDeleteZone() {
-        TranslationHelper.startY(mDeleteZone, DELZONE_MOVE_Y, new AnimatorEndListener(mDeleteZone));
-    }
+//    public void showDeleteZone() {
+//        if (mDeleteZone.getVisibility() == View.INVISIBLE) {
+//            mDeleteZone.setVisibility(View.VISIBLE);
+//            TranslationHelper.startY(mDeleteZone, 0, null);
+//        }
+//    }
+//
+//    public void hideDeleteZone() {
+//        TranslationHelper.startY(mDeleteZone, DELZONE_MOVE_Y, new AnimatorEndListener(mDeleteZone));
+//    }
 
     public View getExpandLayout() {
         return mExpandLayout;

@@ -22,6 +22,7 @@ import android.graphics.Rect;
 import android.graphics.RectF;
 import android.graphics.drawable.TransitionDrawable;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.View;
 import android.view.animation.AccelerateInterpolator;
 import android.view.animation.AlphaAnimation;
@@ -36,6 +37,8 @@ import com.obigo.f10.ui.drag.DragView;
 import com.obigo.f10.ui.drag.DropTarget;
 
 public class DeleteZone extends ImageView implements DropTarget, DragController.DragListener {
+    private static final String TAG = "DeleteZone";
+
     private static final int ORIENTATION_HORIZONTAL = 1;
     private static final int TRANSITION_DURATION = 250;
     private static final int ANIMATION_DURATION = 200;
@@ -50,7 +53,7 @@ public class DeleteZone extends ImageView implements DropTarget, DragController.
     private Animation mHandleInAnimation;
     private Animation mHandleOutAnimation;
 
-    private int mOrientation;
+    private int mOrientation = ORIENTATION_HORIZONTAL;
     private DragController mDragController;
 
     private final RectF mRegion = new RectF();
@@ -93,6 +96,8 @@ public class DeleteZone extends ImageView implements DropTarget, DragController.
 
     @Override
     public void onDrop(DragSource source, int x, int y, int xOffset, int yOffset, DragView dragView, Object dragInfo) {
+        Log.d(TAG, "@@ del zone onDrop");
+
 //        final ItemInfo item = (ItemInfo) dragInfo;
 //
 //        if (item.container == -1) {
@@ -147,30 +152,32 @@ public class DeleteZone extends ImageView implements DropTarget, DragController.
 
     @Override
     public void onDragStart(DragSource source, Object info, int dragAction) {
+        Log.d(TAG, "@@ delzone onDragStart");
+
 //        final ItemInfo item = (ItemInfo) info;
 //        if (item != null) {
-//            mTrashMode = true;
-//            createAnimations();
-//            final int[] location = mLocation;
-//            getLocationOnScreen(location);
+            mTrashMode = true;
+            createAnimations();
+            final int[] location = mLocation;
+            getLocationOnScreen(location);
 //            mRegion.set(location[0], location[1], location[0] + mRight - mLeft,
 //                    location[1] + mBottom - mTop);
 //            mDragController.setDeleteRegion(mRegion);
-//            mTransition.resetTransition();
-//            startAnimation(mInAnimation);
+            mTransition.resetTransition();
+            startAnimation(mInAnimation);
 //            mHandle.startAnimation(mHandleOutAnimation);
-//            setVisibility(VISIBLE);
+            setVisibility(VISIBLE);
 //        }
     }
 
     @Override
     public void onDragEnd() {
 //        if (mTrashMode) {
-//            mTrashMode = false;
+            mTrashMode = false;
 //            mDragController.setDeleteRegion(null);
-//            startAnimation(mOutAnimation);
+            startAnimation(mOutAnimation);
 //            mHandle.startAnimation(mHandleInAnimation);
-//            setVisibility(GONE);
+            setVisibility(GONE);
 //        }
     }
 
@@ -180,6 +187,7 @@ public class DeleteZone extends ImageView implements DropTarget, DragController.
             final AnimationSet animationSet = mInAnimation;
             animationSet.setInterpolator(new AccelerateInterpolator());
             animationSet.addAnimation(new AlphaAnimation(0.0f, 1.0f));
+
             if (mOrientation == ORIENTATION_HORIZONTAL) {
                 animationSet.addAnimation(new TranslateAnimation(Animation.ABSOLUTE, 0.0f,
                         Animation.ABSOLUTE, 0.0f, Animation.RELATIVE_TO_SELF, 1.0f,

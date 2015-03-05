@@ -20,6 +20,7 @@ import java.util.ArrayList;
 
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.graphics.Paint;
 import android.graphics.Rect;
 import android.graphics.RectF;
 import android.os.Handler;
@@ -174,13 +175,12 @@ public class DragController {
         int screenX = loc[0];
         int screenY = loc[1];
 
-        startDrag(b, screenX, screenY, 0, 0, b.getWidth(), b.getHeight(),
-                source, dragInfo, dragAction);
-
+        startDrag(b, screenX, screenY, 0, 0, b.getWidth(), b.getHeight(), source, dragInfo, dragAction);
         b.recycle();
 
         if (dragAction == DRAG_ACTION_MOVE) {
-            v.setVisibility(View.GONE);
+            //v.setVisibility(View.GONE);
+//            v.setVisibility(View.INVISIBLE);
         }
     }
 
@@ -232,6 +232,10 @@ public class DragController {
 
         DragView dragView = mDragView = new DragView(mContext, b, registrationX, registrationY,
                 textureLeft, textureTop, textureWidth, textureHeight);
+
+        Paint alpha = new Paint();
+        alpha.setAlpha(180);
+        dragView.setPaint(alpha);
         dragView.show(mWindowToken, (int)mMotionDownX, (int)mMotionDownY);
     }
 

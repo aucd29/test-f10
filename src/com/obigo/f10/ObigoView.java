@@ -10,10 +10,10 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
-import android.widget.FrameLayout;
+import android.webkit.WebView;
 
-//public class ObigoView extends WebView {
-public class ObigoView extends FrameLayout {
+public class ObigoView extends WebView {
+//public class ObigoView extends FrameLayout {
     private boolean mUseScreenCache = false;
     public boolean mNeedCapture = false;
 
@@ -40,7 +40,7 @@ public class ObigoView extends FrameLayout {
 //        lp.weight = 1;
 //        setLayoutParams(lp);
 
-//        loadUrl("file:///android_asset/dumy.html");
+        loadUrl("file:///android_asset/dumy.html");
 //        loadUrl("http://sarangnamu.net");
     }
 
@@ -53,14 +53,14 @@ public class ObigoView extends FrameLayout {
         return true;
     }
 
-    @Override
-    protected void dispatchDraw(Canvas canvas) {
-        super.dispatchDraw(canvas);
-
-        if (mUseScreenCache == false) {
-            return;
-        }
-    }
+//    @Override
+//    protected void dispatchDraw(Canvas canvas) {
+//        super.dispatchDraw(canvas);
+//
+//        if (mUseScreenCache == false) {
+//            return;
+//        }
+//    }
 
 //    @Override
 //    protected void onDraw (Canvas canvas) {
@@ -91,19 +91,19 @@ public class ObigoView extends FrameLayout {
 //        }
 //    }
 
-    private void drawCacheCavas(Canvas canvas) {
-        if (mCacheBt == null) {
-            Bitmap.Config c = Bitmap.Config.RGB_565;
-            mCacheBt = Bitmap.createBitmap(getWidth(), getHeight(), c);
-        }
-
-        if (mCacheCanvas == null) {
-            mCacheCanvas = new Canvas();
-            mCacheCanvas.setBitmap(mCacheBt);
-        }
-
-//        super.onDraw(mCacheCanvas);
-
-        canvas.drawBitmap(mCacheBt, 0, 0, null);
-    }
+//    private void drawCacheCavas(Canvas canvas) {
+//        if (mCacheBt == null) {
+//            Bitmap.Config c = Bitmap.Config.RGB_565;
+//            mCacheBt = Bitmap.createBitmap(getWidth(), getHeight(), c);
+//        }
+//
+//        if (mCacheCanvas == null) {
+//            mCacheCanvas = new Canvas();
+//            mCacheCanvas.setBitmap(mCacheBt);
+//        }
+//
+////        super.onDraw(mCacheCanvas);
+//
+//        canvas.drawBitmap(mCacheBt, 0, 0, null);
+//    }
 }

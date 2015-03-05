@@ -18,7 +18,14 @@
 */
 -->
 
-<selector xmlns:android="http://schemas.android.com/apk/res/android">
-    <item android:drawable="@drawable/trashcan_hover" android:state_drag_hovered="true" />
-    <item android:drawable="@drawable/trashcan"  />
-</selector>
+
+<!-- <selector xmlns:android="http://schemas.android.com/apk/res/android"> -->
+<!-- <item android:drawable="@drawable/trashcan_hover" android:state_drag_hovered="true" /> -->
+<!-- <item android:drawable="@drawable/trashcan"  /> -->
+<!-- </selector> -->
+<transition xmlns:android="http://schemas.android.com/apk/res/android" >
+
+    <item android:drawable="@drawable/trashcan"/>
+    <item android:drawable="@drawable/trashcan_hover"/>
+
+</transition>

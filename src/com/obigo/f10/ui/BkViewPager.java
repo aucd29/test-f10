@@ -402,7 +402,7 @@ public class BkViewPager extends ViewGroup {
 
 //                Log.d(TAG, "touch mEdgeMotionX " + mEdgeMotionX);
 //                Log.d(TAG, "touch mEdgeMotionY " + mEdgeMotionY);
-                Log.d(TAG, "deltaX " + deltaX + ", deltaY " + deltaY);
+//                Log.d(TAG, "deltaX " + deltaX + ", deltaY " + deltaY);
 
                 final int halfWidth = getWidth() / 2;
 

@@ -61,7 +61,6 @@
         android:paddingTop="20dp"
         android:scaleType="center"
         android:src="@drawable/delete_zone_selector"
-        android:translationY="-40dp"
         android:visibility="invisible" />
 
 </com.obigo.f10.ui.drag.DragLayer>
