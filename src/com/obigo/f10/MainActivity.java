@@ -1,5 +1,5 @@
 /*
- * ObigoView.java
+ * MainActivity.java
  * Copyright 2015 OBIGO Inc. All rights reserved.
  *             http://www.obigo.com
  */
@@ -12,14 +12,13 @@ import android.util.Log;
 import android.view.DragEvent;
 import android.view.View;
 import android.view.View.OnDragListener;
-import android.view.View.OnLongClickListener;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 
 import com.obigo.f10.ui.ani.AnimatorEndListener;
 import com.obigo.f10.ui.ani.TranslationHelper;
 
-public class MainActivity extends FragmentActivity implements View.OnClickListener, OnLongClickListener{
+public class MainActivity extends FragmentActivity implements View.OnClickListener {
     private static final String TAG = "MainActivity";
 
     private static final int APPLIST_MOVE_X = -400;
@@ -46,7 +45,6 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
         mExpandLayout = (FrameLayout) mDragLayer.findViewById(R.id.expand);
 
         mWorkspace.setMainActivity(this);
-        mWorkspace.setOnLongClickListener(this);
         mDeleteZone.setOnDragListener(new OnDragListener() {
             @Override
             public boolean onDrag(View v, DragEvent event) {
@@ -57,10 +55,10 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
                     mWorkspace.requestLayout();
                     break;
                 case DragEvent.ACTION_DRAG_ENTERED:
-                    Log.d(TAG, "@@ drag entered");
+                    Log.d(TAG, "@@ delzone drag entered");
                     break;
                 case DragEvent.ACTION_DRAG_EXITED:
-                    Log.d(TAG, "@@ drag exited");
+                    Log.d(TAG, "@@ delzone drag exited");
                     break;
                 }
 
@@ -88,25 +86,6 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
                 }
             }
         }
-    }
-
-    @Override
-    public boolean onLongClick(View v) {
-        Log.d(TAG, "on long click");
-
-        if (v instanceof CellLayout && mWorkspace.allowLongPress()) {
-            Log.d(TAG, "long click cell layout");
-            //showDeleteZone();
-//            mWorkspace.startDrag(data, shadowBuilder, myLocalState, flags)
-        } else {
-            switch (v.getId()) {
-            case R.id.workspace:
-                Log.d(TAG, "workspace long click");
-                break;
-            }
-        }
-
-        return false;
     }
 
     @Override

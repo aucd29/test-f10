@@ -25,7 +25,6 @@ import com.obigo.f10.ui.BkViewPager;
 import com.obigo.f10.ui.Capture;
 import com.obigo.f10.ui.ani.AnimatorEndListener;
 import com.obigo.f10.ui.ani.ResizeHelper;
-import com.obigo.f10.ui.drag.IDragController;
 import com.obigo.f10.ui.events.OnCellDoubleTapListener;
 
 
@@ -35,8 +34,6 @@ public class Workspace extends BkViewPager implements OnCellDoubleTapListener, O
     private MainActivity mActivity;
     private int mMaxCellCount = 15;
 
-    private IDragController mDragger;
-    private OnLongClickListener mLongClickListener;
     private boolean mFullScreenMode = false;
     private boolean mAnimating = false;
     private int mDoubleTapPosition;
@@ -50,7 +47,7 @@ public class Workspace extends BkViewPager implements OnCellDoubleTapListener, O
     }
 
     private void initWorkspace() {
-        setBackgroundColor(0x7f000000);
+//        setBackgroundColor(0x7f000000);
     }
 
     private void initLayout() {
@@ -65,10 +62,10 @@ public class Workspace extends BkViewPager implements OnCellDoubleTapListener, O
                 case DragEvent.ACTION_DRAG_STARTED:
                     break;
                 case DragEvent.ACTION_DRAG_ENTERED:
-                    Log.d(TAG, "@@ work drag entered (" + v.getTag() + ")");
+//                    Log.d(TAG, "@@ work drag entered (" + v.getTag() + ")");
                     break;
                 case DragEvent.ACTION_DRAG_EXITED:
-                    Log.d(TAG, "@@ work drag exited (" + v.getTag() + ")");
+//                    Log.d(TAG, "@@ work drag exited (" + v.getTag() + ")");
                     break;
                 case DragEvent.ACTION_DRAG_LOCATION:
 //                        Log.d(TAG, "@@ drag location");
@@ -76,7 +73,7 @@ public class Workspace extends BkViewPager implements OnCellDoubleTapListener, O
                 case DragEvent.ACTION_DRAG_ENDED:
                     break;
                 case DragEvent.ACTION_DROP:
-                    Log.d(TAG, "@@ work action drop (" + v.getTag() + ")");
+//                    Log.d(TAG, "@@ work action drop (" + v.getTag() + ")");
                     mActivity.hideDeleteZone();
                     break;
                 }
@@ -306,15 +303,6 @@ public class Workspace extends BkViewPager implements OnCellDoubleTapListener, O
     }
 
     @Override
-    public void setOnLongClickListener(OnLongClickListener l) {
-//            mLongClickListener = l;
-//            final int count = getChildCount();
-//            for (int i = 0; i < count; i++) {
-//                getChildAt(i).setOnLongClickListener(l);
-//            }
-    }
-
-    @Override
     protected void snapToScreen(int whichScreen, int velocity, boolean settle) {
         super.snapToScreen(whichScreen, velocity, settle);
 
@@ -531,22 +519,34 @@ public class Workspace extends BkViewPager implements OnCellDoubleTapListener, O
         case DragEvent.ACTION_DRAG_ENDED:
 //            Log.d(TAG, "@@ cell drag ended (" + v.getTag() + ")");
             break;
-        case DragEvent.ACTION_DROP:
+        case DragEvent.ACTION_DROP: {
             mActivity.hideDeleteZone();
-
             int count = getChildCount();
+            int delPos = 1;
+
+            for (int i=0; i<count; ++i) {
+                if (getChildAt(i).equals(mDragView)) {
+                    delPos = i;
+                    removeView(mDragView);
+                    break;
+                }
+            }
+
+            count = getChildCount();
             for (int i=0; i<count; ++i) {
                 if (getChildAt(i).equals(v)) {
-                    removeView(mDragView);
                     addView(mDragView, i);
-                    requestLayout();
+                    removeView(v);
+                    addView(v, delPos);
 
+                    requestLayout();
                     break;
                 }
             }
 
 //            Log.d(TAG, "@@ cell action drop (" + v.getTag() + ")");
             break;
+            }
         }
         return true;
     }
