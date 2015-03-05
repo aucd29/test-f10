@@ -141,12 +141,15 @@ public class Workspace extends BkViewPager implements OnCellDoubleTapListener, O
     public void onEdgeEvent(int mode) {
         if (mActivity != null) {
             switch (mode) {
-            case EDGE_EVENT_LEFT:
+            case EDGE_EVENT_TO_LEFT:
                 mActivity.showAppList();
                 break;
 
-            case EDGE_EVENT_TOP:
+            case EDGE_EVENT_TOP_RIGHT_TO_BOTTOM:
                 mActivity.showSettingMenu();
+                break;
+
+            case EDGE_EVENT_TOP_LEFT_TO_BOTTOM:
                 break;
 
             default:

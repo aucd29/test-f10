@@ -79,8 +79,10 @@ public class BkViewPager extends ViewGroup {
 
     private float mEdgeMotion = 130.0f;
     private float mEdgeMotionX, mEdgeMotionY;
-    public static final int EDGE_EVENT_LEFT = 1;
-    public static final int EDGE_EVENT_TOP = 2;
+
+    public static final int EDGE_EVENT_TO_LEFT = 1;
+    public static final int EDGE_EVENT_TOP_RIGHT_TO_BOTTOM = 2;
+    public static final int EDGE_EVENT_TOP_LEFT_TO_BOTTOM = 3;
 
     private static class WorkspaceOvershootInterpolator implements Interpolator {
         private static final float DEFAULT_TENSION = 0.0f; //1.3f; // modified by burke
@@ -242,12 +244,6 @@ public class BkViewPager extends ViewGroup {
 
     @Override
     public boolean onInterceptTouchEvent(MotionEvent ev) {
-//        final int action = ev.getAction();
-//        if ((action == MotionEvent.ACTION_MOVE) && (mTouchState != TOUCH_STATE_REST)) {
-//            return true;
-//        }
-//
-//        return super.onInterceptTouchEvent(ev);
         final int action = ev.getAction();
         if ((action == MotionEvent.ACTION_MOVE) && (mTouchState != TOUCH_STATE_REST)) {
             return true;
@@ -305,12 +301,13 @@ public class BkViewPager extends ViewGroup {
             mActivePointerId = ev.getPointerId(0);
             mAllowLongPress = true;
             mTouchState = mScroller.isFinished() ? TOUCH_STATE_REST : TOUCH_STATE_SCROLLING;
-//            Log.d(TAG, "@@ inter down");
+            Log.d(TAG, "@@ inter down");
             break;
         }
 
         case MotionEvent.ACTION_CANCEL:
         case MotionEvent.ACTION_UP:
+            Log.d(TAG, "vp inter up");
             if (mTouchState != TOUCH_STATE_SCROLLING) {
                 final CellLayout currentScreen = (CellLayout)getChildAt(mCurrentScreen);
 //                if (!currentScreen.lastDownOnOccupiedCell()) {
@@ -371,6 +368,7 @@ public class BkViewPager extends ViewGroup {
 //        }
     }
 
+
     @Override
     public boolean onTouchEvent(MotionEvent ev) {
         if (mVelocityTracker == null) {
@@ -393,6 +391,7 @@ public class BkViewPager extends ViewGroup {
                 enableChildrenCache(mCurrentScreen - 1, mCurrentScreen + 1);
             }
             break;
+
         case MotionEvent.ACTION_MOVE:
             if (mTouchState == TOUCH_STATE_SCROLLING) {
                 final int pointerIndex = ev.findPointerIndex(mActivePointerId);
@@ -402,13 +401,17 @@ public class BkViewPager extends ViewGroup {
                 final float deltaY = mLastMotionY - y;
 
 //                Log.d(TAG, "touch mEdgeMotionX " + mEdgeMotionX);
-//                Log.d(TAG, "deltaY " + deltaY);
+//                Log.d(TAG, "touch mEdgeMotionY " + mEdgeMotionY);
+                Log.d(TAG, "deltaX " + deltaX + ", deltaY " + deltaY);
 
-                if (mEdgeEventMode && mEdgeMotionX < mEdgeMotion) {
-                    onEdgeEvent(EDGE_EVENT_LEFT);
-                } else if (mEdgeEventMode && mEdgeMotionY < mEdgeMotion && deltaY < -60) {
-//                    Log.d(TAG, "edge event top");
-                    onEdgeEvent(EDGE_EVENT_TOP);
+                final int halfWidth = getWidth() / 2;
+
+                if (mEdgeEventMode && mEdgeMotionX < mEdgeMotion && deltaY > -30 && deltaY < 30) {
+                    onEdgeEvent(EDGE_EVENT_TO_LEFT);
+                } else if (mEdgeEventMode && mEdgeMotionY < mEdgeMotion && mEdgeMotionX > halfWidth && deltaY < -30) {
+                    onEdgeEvent(EDGE_EVENT_TOP_RIGHT_TO_BOTTOM);
+                } else if (mEdgeEventMode && mEdgeMotionY < mEdgeMotion && mEdgeMotionX < halfWidth && deltaY < -30 ) {
+                    onEdgeEvent(EDGE_EVENT_TOP_LEFT_TO_BOTTOM);
                 } else {
                     mLastMotionX = x;
 
@@ -442,6 +445,9 @@ public class BkViewPager extends ViewGroup {
                 final int whichScreen = (getScrollX() + (screenWidth / 2)) / screenWidth;
                 final float scrolledPos = (float) getScrollX() / screenWidth;
 
+//                Log.d(TAG, "touch up scrolling " + screenWidth +
+//                        ", whichscreen " + whichScreen + ", scrolledPos " + scrolledPos);
+
                 if (velocityX > SNAP_VELOCITY && mCurrentScreen > 0) {
                     // Fling hard enough to move left.
                     // Don't fling across more than one screen at a time.
@@ -470,7 +476,10 @@ public class BkViewPager extends ViewGroup {
                     mVelocityTracker.recycle();
                     mVelocityTracker = null;
                 }
+            } else {
+                Log.d(TAG, "@@ vp up ");
             }
+
             mTouchState = TOUCH_STATE_REST;
             mActivePointerId = INVALID_POINTER;
             break;
