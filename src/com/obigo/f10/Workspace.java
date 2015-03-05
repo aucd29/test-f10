@@ -7,6 +7,7 @@ package com.obigo.f10;
 
 import android.animation.Animator;
 import android.content.Context;
+import android.graphics.Rect;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
@@ -16,8 +17,6 @@ import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.View.OnDragListener;
-import android.view.View.OnLongClickListener;
 import android.widget.FrameLayout;
 import android.widget.TextView;
 
@@ -25,10 +24,15 @@ import com.obigo.f10.ui.BkViewPager;
 import com.obigo.f10.ui.Capture;
 import com.obigo.f10.ui.ani.AnimatorEndListener;
 import com.obigo.f10.ui.ani.ResizeHelper;
+import com.obigo.f10.ui.drag.DragController;
+import com.obigo.f10.ui.drag.DragScroller;
+import com.obigo.f10.ui.drag.DragSource;
+import com.obigo.f10.ui.drag.DragView;
+import com.obigo.f10.ui.drag.DropTarget;
 import com.obigo.f10.ui.events.OnCellDoubleTapListener;
 
 
-public class Workspace extends BkViewPager implements OnCellDoubleTapListener, OnLongClickListener, OnDragListener {
+public class Workspace extends BkViewPager implements OnCellDoubleTapListener, DropTarget, DragSource, DragScroller {
     private static final String TAG = "Workspace";
 
     private MainActivity mActivity;
@@ -38,7 +42,13 @@ public class Workspace extends BkViewPager implements OnCellDoubleTapListener, O
     private boolean mAnimating = false;
     private int mDoubleTapPosition;
     private View mDragView = null;
+
+    private DragController mDragController;
+    private OnLongClickListener mLongClickListener;
+
     private ScrollRunnable mScrollRunnable = new ScrollRunnable();
+
+
 
     private static final int SCROLL_OUTSIDE_ZONE = 0;
     private static final int SCROLL_WAITING_IN_ZONE = 1;
@@ -120,8 +130,8 @@ public class Workspace extends BkViewPager implements OnCellDoubleTapListener, O
                 CellLayout cell = (CellLayout) view;
                 cell.setHalfMode(true);
                 cell.setOnCellDoubleTapListener(this);
-                cell.setOnLongClickListener(this);
-                cell.setOnDragListener(this);
+//                cell.setOnLongClickListener(this);
+//                cell.setOnDragListener(this);
                 cell.setTag("" + i);
 
                 TextView tv = new TextView(getContext());
@@ -163,6 +173,15 @@ public class Workspace extends BkViewPager implements OnCellDoubleTapListener, O
 
     public void setMainActivity(MainActivity activity) {
         mActivity = activity;
+    }
+
+    @Override
+    public void setOnLongClickListener(OnLongClickListener l) {
+        mLongClickListener = l;
+        final int count = getChildCount();
+        for (int i = 0; i < count; i++) {
+            getChildAt(i).setOnLongClickListener(l);
+        }
     }
 
     @Override
@@ -353,6 +372,11 @@ public class Workspace extends BkViewPager implements OnCellDoubleTapListener, O
         }
     }
 
+    @Override
+    public void setDragController(DragController controller) {
+        mDragController = controller;
+    }
+
     ////////////////////////////////////////////////////////////////////////////////////
     //
     // DOUBLE TAP EVENT (FULL SCREEN)
@@ -513,79 +537,227 @@ public class Workspace extends BkViewPager implements OnCellDoubleTapListener, O
         }
     }
 
+//    @Override
+//    public boolean onLongClick(View v) {
+//        if (v.equals(getChildAt(0))) { // blocking first layout
+//            return false;
+//        }
+//
+//        mActivity.showDeleteZone();
+//        mDragView = v;
+//
+////        ClipData dragData = ClipData.newPlainText("1", "2");
+//        View.DragShadowBuilder myShadow = new DragShadowBuilder(v);
+//        v.startDrag(null, // the data to be dragged
+//                myShadow, // the drag shadow builder
+//                null, // no need to use local data
+//                0 // flags (not currently used, set to 0)
+//        );
+//
+//        return false;
+//    }
+
+//    @Override
+//    public boolean onDrag(View v, DragEvent event) {
+//        switch (event.getAction()) {
+//        case DragEvent.ACTION_DRAG_STARTED:
+////            Log.d(TAG, "@@ cell drag started (" + v.getTag() + ")");
+//            break;
+//        case DragEvent.ACTION_DRAG_ENTERED:
+////            Log.d(TAG, "@@ cell drag entered (" + v.getTag() + ")");
+//            break;
+//        case DragEvent.ACTION_DRAG_EXITED:
+////            Log.d(TAG, "@@ cell drag exited (" + v.getTag() + ")");
+//            break;
+//        case DragEvent.ACTION_DRAG_LOCATION: {
+////            Log.d(TAG, "cell drag location x=" + event.getX() + ", y=" + event.getY());
+//            break;
+//            }
+//        case DragEvent.ACTION_DRAG_ENDED:
+////            Log.d(TAG, "@@ cell drag ended (" + v.getTag() + ")");
+//            break;
+//        case DragEvent.ACTION_DROP: {
+//            mActivity.hideDeleteZone();
+//
+//            if (mDragView.equals(v)) {
+//                return true;
+//            }
+//
+//            int count = getChildCount();
+//            int delPos = 1;
+//
+//            for (int i=0; i<count; ++i) {
+//                if (getChildAt(i).equals(mDragView)) {
+//                    delPos = i;
+//                    removeView(mDragView);
+//                    break;
+//                }
+//            }
+//
+//            count = getChildCount();
+//            for (int i=0; i<count; ++i) {
+//                if (getChildAt(i).equals(v)) {
+//                    addView(mDragView, i);
+//                    removeView(v);
+//                    addView(v, delPos);
+//
+//                    requestLayout();
+//                    break;
+//                }
+//            }
+//
+////            Log.d(TAG, "@@ cell action drop (" + v.getTag() + ")");
+//            break;
+//            }
+//        }
+//        return true;
+//    }
+
+    public void startDrag() {
+        View child = getChildAt(mCurrentScreen);
+
+        mDragController.startDrag(child, this, child.getTag(), DragController.DRAG_ACTION_MOVE);
+        invalidate();
+    }
+
+
     @Override
-    public boolean onLongClick(View v) {
-        if (v.equals(getChildAt(0))) { // blocking first layout
-            return false;
+    public void scrollLeft() {
+//        clearVacantCache();
+        if (mScroller.isFinished()) {
+            if (mCurrentScreen > 0) {
+                snapToScreen(mCurrentScreen - 1);
+            }
+        } else {
+            if (mNextScreen > 0) {
+                snapToScreen(mNextScreen - 1);
+            }
         }
+    }
 
-        mActivity.showDeleteZone();
-        mDragView = v;
+    @Override
+    public void scrollRight() {
+//        clearVacantCache();
+        if (mScroller.isFinished()) {
+            if (mCurrentScreen < getChildCount() -1) {
+                snapToScreen(mCurrentScreen + 1);
+            }
+        } else {
+            if (mNextScreen < getChildCount() -1) {
+                snapToScreen(mNextScreen + 1);
+            }
+        }
+    }
 
-//        ClipData dragData = ClipData.newPlainText("1", "2");
-        View.DragShadowBuilder myShadow = new DragShadowBuilder(v);
-        v.startDrag(null, // the data to be dragged
-                myShadow, // the drag shadow builder
-                null, // no need to use local data
-                0 // flags (not currently used, set to 0)
-        );
+    @Override
+    public void onDropCompleted(View target, boolean success) {
+//        clearVacantCache();
+//
+//        if (success){
+//            if (target != this && mDragInfo != null) {
+//                final CellLayout cellLayout = (CellLayout) getChildAt(mDragInfo.screen);
+//                cellLayout.removeView(mDragInfo.cell);
+//                if (mDragInfo.cell instanceof DropTarget) {
+//                    mDragController.removeDropTarget((DropTarget)mDragInfo.cell);
+//                }
+//                //final Object tag = mDragInfo.cell.getTag();
+//            }
+//        } else {
+//            if (mDragInfo != null) {
+//                final CellLayout cellLayout = (CellLayout) getChildAt(mDragInfo.screen);
+//                cellLayout.onDropAborted(mDragInfo.cell);
+//            }
+//        }
+//
+//        mDragInfo = null;
+    }
 
+    @Override
+    public void onDrop(DragSource source, int x, int y, int xOffset, int yOffset, DragView dragView, Object dragInfo) {
+//        final CellLayout cellLayout = getCurrentDropLayout();
+//        if (source != this) {
+//            onDropExternal(x - xOffset, y - yOffset, dragInfo, cellLayout);
+//        } else {
+//            // Move internally
+//            if (mDragInfo != null) {
+//                final View cell = mDragInfo.cell;
+//                int index = mScroller.isFinished() ? mCurrentScreen : mNextScreen;
+//                if (index != mDragInfo.screen) {
+//                    final CellLayout originalCellLayout = (CellLayout) getChildAt(mDragInfo.screen);
+//                    originalCellLayout.removeView(cell);
+//                    cellLayout.addView(cell);
+//                }
+//                mTargetCell = estimateDropCell(x - xOffset, y - yOffset,
+//                        mDragInfo.spanX, mDragInfo.spanY, cell, cellLayout, mTargetCell);
+//                cellLayout.onDropChild(cell, mTargetCell);
+//
+//                final ItemInfo info = (ItemInfo) cell.getTag();
+//                CellLayout.LayoutParams lp = (CellLayout.LayoutParams) cell.getLayoutParams();
+//                LauncherModel.moveItemInDatabase(mLauncher, info,
+//                        LauncherSettings.Favorites.CONTAINER_DESKTOP, index, lp.cellX, lp.cellY);
+//            }
+//        }
+    }
+
+    @Override
+    public void onDragEnter(DragSource source, int x, int y, int xOffset, int yOffset, DragView dragView, Object dragInfo) {
+//        clearVacantCache();
+    }
+
+    @Override
+    public void onDragOver(DragSource source, int x, int y, int xOffset, int yOffset, DragView dragView, Object dragInfo) {
+    }
+
+    @Override
+    public void onDragExit(DragSource source, int x, int y, int xOffset, int yOffset, DragView dragView, Object dragInfo) {
+//        clearVacantCache();
+    }
+
+    @Override
+    public boolean acceptDrop(DragSource source, int x, int y, int xOffset, int yOffset, DragView dragView, Object dragInfo) {
+//        final CellLayout layout = getCurrentDropLayout();
+//        final CellLayout.CellInfo cellInfo = mDragInfo;
+//        final int spanX = cellInfo == null ? 1 : cellInfo.spanX;
+//        final int spanY = cellInfo == null ? 1 : cellInfo.spanY;
+//
+//        if (mVacantCache == null) {
+//            final View ignoreView = cellInfo == null ? null : cellInfo.cell;
+//            mVacantCache = layout.findAllVacantCells(null, ignoreView);
+//        }
+//
+//        return mVacantCache.findCellForSpan(mTempEstimate, spanX, spanY, false);
         return false;
     }
 
     @Override
-    public boolean onDrag(View v, DragEvent event) {
-        switch (event.getAction()) {
-        case DragEvent.ACTION_DRAG_STARTED:
-//            Log.d(TAG, "@@ cell drag started (" + v.getTag() + ")");
-            break;
-        case DragEvent.ACTION_DRAG_ENTERED:
-//            Log.d(TAG, "@@ cell drag entered (" + v.getTag() + ")");
-            break;
-        case DragEvent.ACTION_DRAG_EXITED:
-//            Log.d(TAG, "@@ cell drag exited (" + v.getTag() + ")");
-            break;
-        case DragEvent.ACTION_DRAG_LOCATION: {
-//            Log.d(TAG, "cell drag location x=" + event.getX() + ", y=" + event.getY());
-            break;
-            }
-        case DragEvent.ACTION_DRAG_ENDED:
-//            Log.d(TAG, "@@ cell drag ended (" + v.getTag() + ")");
-            break;
-        case DragEvent.ACTION_DROP: {
-            mActivity.hideDeleteZone();
+    public Rect estimateDropLocation(DragSource source, int x, int y, int xOffset, int yOffset, DragView dragView, Object dragInfo, Rect recycle) {
+//        final CellLayout layout = getCurrentDropLayout();
+//
+//        final CellLayout.CellInfo cellInfo = mDragInfo;
+//        final int spanX = cellInfo == null ? 1 : cellInfo.spanX;
+//        final int spanY = cellInfo == null ? 1 : cellInfo.spanY;
+//        final View ignoreView = cellInfo == null ? null : cellInfo.cell;
+//
+//        final Rect location = recycle != null ? recycle : new Rect();
+//
+//        // Find drop cell and convert into rectangle
+//        int[] dropCell = estimateDropCell(x - xOffset, y - yOffset,
+//                spanX, spanY, ignoreView, layout, mTempCell);
+//
+//        if (dropCell == null) {
+//            return null;
+//        }
+//
+//        layout.cellToPoint(dropCell[0], dropCell[1], mTempEstimate);
+//        location.left = mTempEstimate[0];
+//        location.top = mTempEstimate[1];
+//
+//        layout.cellToPoint(dropCell[0] + spanX, dropCell[1] + spanY, mTempEstimate);
+//        location.right = mTempEstimate[0];
+//        location.bottom = mTempEstimate[1];
+//
+//        return location;
 
-            if (mDragView.equals(v)) {
-                return true;
-            }
-
-            int count = getChildCount();
-            int delPos = 1;
-
-            for (int i=0; i<count; ++i) {
-                if (getChildAt(i).equals(mDragView)) {
-                    delPos = i;
-                    removeView(mDragView);
-                    break;
-                }
-            }
-
-            count = getChildCount();
-            for (int i=0; i<count; ++i) {
-                if (getChildAt(i).equals(v)) {
-                    addView(mDragView, i);
-                    removeView(v);
-                    addView(v, delPos);
-
-                    requestLayout();
-                    break;
-                }
-            }
-
-//            Log.d(TAG, "@@ cell action drop (" + v.getTag() + ")");
-            break;
-            }
-        }
-        return true;
+        return null;
     }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008 The Android Open Source Project
+ * Copyright (C) 2009 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,13 +16,9 @@
 
 package com.obigo.f10.ui.drag;
 
-import android.view.View;
-
-/**
- * Interface defining an object that can originate a drag.
- *
- */
-public interface IDragSource {
-    void onDropCompleted(View target, boolean success);
+interface TweenCallback {
+    void onTweenValueChanged(float value, float oldValue);
+    void onTweenStarted();
+    void onTweenFinished();
 }
 

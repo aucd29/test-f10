@@ -44,7 +44,7 @@ public class BkViewPager extends ViewGroup {
 
     protected int mCurrentScreen;
     protected int mNextScreen = INVALID_SCREEN;
-    private Scroller mScroller;
+    protected Scroller mScroller;
     protected VelocityTracker mVelocityTracker;
 
     protected float mLastMotionX;

@@ -16,11 +16,13 @@
 
 package com.obigo.f10.ui.drag;
 
+import android.view.View;
+
 /**
- * Handles scrolling while dragging
+ * Interface defining an object that can originate a drag.
  *
  */
-public interface DragScroller {
-    void scrollLeft();
-    void scrollRight();
+public interface DragSource {
+    void setDragController(DragController dragger);
+    void onDropCompleted(View target, boolean success);
 }
