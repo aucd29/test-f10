@@ -15,14 +15,14 @@ public class ResizeHelper {
     private static final int ANI_DURATION = 400;
 
     public static void expand(final View view, int screen, AnimatorEndListener l) {
-        scaleX(view, screen, 2f, l);
+        scale(view, screen, 2f, l);
     }
 
     public static void collapse(View view, int screen, AnimatorEndListener l) {
-        scaleX(view, screen, 0.5f, l);
+        scale(view, screen, 0.5f, l);
     }
 
-    private static void scaleX(View view, int screen, float scaleValue, AnimatorEndListener l) {
+    private static void scale(View view, int screen, float scaleValue, AnimatorEndListener l) {
         AnimatorSet aniset = new AnimatorSet();
         aniset.setInterpolator(new DecelerateInterpolator());
         aniset.setDuration(ANI_DURATION);

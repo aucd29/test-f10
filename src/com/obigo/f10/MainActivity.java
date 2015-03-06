@@ -8,6 +8,7 @@ package com.obigo.f10;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
+import android.util.Log;
 import android.view.View;
 import android.view.View.OnLongClickListener;
 import android.widget.FrameLayout;
@@ -89,6 +90,10 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
 
     @Override
     public boolean onLongClick(View v) {
+        if (mWorkspace.isFullScreenMode()) {
+            return false;
+        }
+
         if (v instanceof CellLayout && mWorkspace.getChildAt(0).equals(v)) {
             return false;
         }
@@ -102,6 +107,7 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
 
     @Override
     public void onClick(View v) {
+        Log.d(TAG, "@@ onclick");
     }
 
     @Override

@@ -300,8 +300,6 @@ public class Workspace extends BkViewPager implements OnCellDoubleTapListener, D
         super.snapToScreen(whichScreen, velocity, settle);
 
         if (mFullScreenMode) {
-//            Log.d(TAG, "@@ next screen " + mNextScreen + ", current " + mCurrentScreen + ", tap " + mDoubleTapPosition);
-
             if (mCurrentScreen < mNextScreen) {
                 ++mDoubleTapPosition;
                 mDoubleTapPosition %= 4;
@@ -310,8 +308,6 @@ public class Workspace extends BkViewPager implements OnCellDoubleTapListener, D
                     mDoubleTapPosition = OnCellDoubleTapListener.RIGHT_BOTTOM;
                 }
             }
-
-//            Log.d(TAG, "## next screen " + mNextScreen + ", current " + mCurrentScreen + ", tap " + mDoubleTapPosition);
         }
     }
 
@@ -455,7 +451,6 @@ public class Workspace extends BkViewPager implements OnCellDoubleTapListener, D
             @Override
             public void onAnimationEnd(Animator animation) {
                 super.onAnimationEnd(animation);
-                setFullScreenMode(false);
                 capture.recycle();
 
                 mAnimating = false;
@@ -510,7 +505,7 @@ public class Workspace extends BkViewPager implements OnCellDoubleTapListener, D
         }
 
         int childPos = mCurrentScreen * 2 + pos - 1;
-        Log.d(TAG, "screen " + mCurrentScreen + ", cell pos " + pos + ", child pos " + childPos);
+//        Log.d(TAG, "screen " + mCurrentScreen + ", cell pos " + pos + ", child pos " + childPos);
 
         return getChildAt(childPos);
     }
