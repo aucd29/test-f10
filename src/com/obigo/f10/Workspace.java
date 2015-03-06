@@ -41,7 +41,6 @@ public class Workspace extends BkViewPager implements OnCellDoubleTapListener, D
     private boolean mFullScreenMode = false;
     private boolean mAnimating = false;
     private int mDoubleTapPosition;
-    private View mDragView = null;
 
     private DragController mDragController;
     private OnLongClickListener mLongClickListener;
@@ -479,15 +478,29 @@ public class Workspace extends BkViewPager implements OnCellDoubleTapListener, D
     //
     ////////////////////////////////////////////////////////////////////////////////////
 
-    public void removeDropView() {
-        if (mDragView != null) {
-            removeView(mDragView);
-            mDragView = null;
+    private View getCurrentDropView(int x, int y) {
+        float width  = getWidth() / 2;
+        float height = getHeight() / 2;
+
+        int pos;
+        if (x < width && y < height) {
+            pos = OnCellDoubleTapListener.LEFT_TOP;
+        } else if (x > width && y < height) {
+            pos = OnCellDoubleTapListener.RIGHT_TOP;
+        } else if (x < width && y > height) {
+            pos = OnCellDoubleTapListener.LEFT_BOTTOM;
+        } else {
+            pos = OnCellDoubleTapListener.RIGHT_BOTTOM;
         }
+
+        int childPos = mCurrentScreen * 2 + pos - 1;
+        Log.d(TAG, "screen " + mCurrentScreen + ", cell pos " + pos + ", child pos " + childPos);
+
+        return getChildAt(childPos);
     }
 
     public void startDrag(View child) {
-        mDragController.startDrag(child, this, child.getTag(), DragController.DRAG_ACTION_MOVE);
+        mDragController.startDrag(child, this, child, DragController.DRAG_ACTION_MOVE);
         invalidate();
     }
 
@@ -521,57 +534,52 @@ public class Workspace extends BkViewPager implements OnCellDoubleTapListener, D
 
     @Override
     public void onDropCompleted(View target, boolean success) {
-//        clearVacantCache();
-//
-//        if (success){
-//            if (target != this && mDragInfo != null) {
-//                final CellLayout cellLayout = (CellLayout) getChildAt(mDragInfo.screen);
-//                cellLayout.removeView(mDragInfo.cell);
-//                if (mDragInfo.cell instanceof DropTarget) {
-//                    mDragController.removeDropTarget((DropTarget)mDragInfo.cell);
-//                }
-//                //final Object tag = mDragInfo.cell.getTag();
-//            }
-//        } else {
-//            if (mDragInfo != null) {
-//                final CellLayout cellLayout = (CellLayout) getChildAt(mDragInfo.screen);
-//                cellLayout.onDropAborted(mDragInfo.cell);
-//            }
-//        }
-//
-//        mDragInfo = null;
+//        Log.d(TAG, "ws onDropCompleted");
     }
 
     @Override
     public void onDrop(DragSource source, int x, int y, int xOffset, int yOffset, DragView dragView, Object dragInfo) {
-//        final CellLayout cellLayout = getCurrentDropLayout();
-//        if (source != this) {
+        if (source != this) {
 //            onDropExternal(x - xOffset, y - yOffset, dragInfo, cellLayout);
-//        } else {
-//            // Move internally
-//            if (mDragInfo != null) {
-//                final View cell = mDragInfo.cell;
-//                int index = mScroller.isFinished() ? mCurrentScreen : mNextScreen;
-//                if (index != mDragInfo.screen) {
-//                    final CellLayout originalCellLayout = (CellLayout) getChildAt(mDragInfo.screen);
-//                    originalCellLayout.removeView(cell);
-//                    cellLayout.addView(cell);
-//                }
-//                mTargetCell = estimateDropCell(x - xOffset, y - yOffset,
-//                        mDragInfo.spanX, mDragInfo.spanY, cell, cellLayout, mTargetCell);
-//                cellLayout.onDropChild(cell, mTargetCell);
-//
-//                final ItemInfo info = (ItemInfo) cell.getTag();
-//                CellLayout.LayoutParams lp = (CellLayout.LayoutParams) cell.getLayoutParams();
-//                LauncherModel.moveItemInDatabase(mLauncher, info,
-//                        LauncherSettings.Favorites.CONTAINER_DESKTOP, index, lp.cellX, lp.cellY);
-//            }
-//        }
+        } else {
+            // Move internally
+            if (dragInfo != null && dragInfo instanceof CellLayout) {
+                View srcView = (View) dragInfo;
+                View destView = getCurrentDropView(x, y);
+                if (destView.equals(getChildAt(0)) || srcView.equals(destView)) {
+                    return ;
+                }
+
+                int i;
+                int count = getChildCount();
+                int delPos = 1;
+
+                for (i=0; i<count; ++i) {
+                    if (getChildAt(i).equals(srcView)) {
+                        delPos = i;
+                        removeView(srcView);
+                        break;
+                    }
+                }
+
+                count = getChildCount();
+                for (i=0; i<count; ++i) {
+                    if (getChildAt(i).equals(destView)) {
+                        addView(srcView, i);
+                        removeView(destView);
+                        addView(destView, delPos);
+
+                        requestLayout();
+                        break;
+                    }
+                }
+            }
+        }
     }
 
     @Override
     public void onDragEnter(DragSource source, int x, int y, int xOffset, int yOffset, DragView dragView, Object dragInfo) {
-//        clearVacantCache();
+//        Log.d(TAG, "ws onDragEnter");
     }
 
     @Override
@@ -580,54 +588,16 @@ public class Workspace extends BkViewPager implements OnCellDoubleTapListener, D
 
     @Override
     public void onDragExit(DragSource source, int x, int y, int xOffset, int yOffset, DragView dragView, Object dragInfo) {
-//        clearVacantCache();
+//        Log.d(TAG, "ws onDragExit");
     }
 
     @Override
     public boolean acceptDrop(DragSource source, int x, int y, int xOffset, int yOffset, DragView dragView, Object dragInfo) {
-//        final CellLayout layout = getCurrentDropLayout();
-//        final CellLayout.CellInfo cellInfo = mDragInfo;
-//        final int spanX = cellInfo == null ? 1 : cellInfo.spanX;
-//        final int spanY = cellInfo == null ? 1 : cellInfo.spanY;
-//
-//        if (mVacantCache == null) {
-//            final View ignoreView = cellInfo == null ? null : cellInfo.cell;
-//            mVacantCache = layout.findAllVacantCells(null, ignoreView);
-//        }
-//
-//        return mVacantCache.findCellForSpan(mTempEstimate, spanX, spanY, false);
-        return false;
+        return true;
     }
 
     @Override
     public Rect estimateDropLocation(DragSource source, int x, int y, int xOffset, int yOffset, DragView dragView, Object dragInfo, Rect recycle) {
-//        final CellLayout layout = getCurrentDropLayout();
-//
-//        final CellLayout.CellInfo cellInfo = mDragInfo;
-//        final int spanX = cellInfo == null ? 1 : cellInfo.spanX;
-//        final int spanY = cellInfo == null ? 1 : cellInfo.spanY;
-//        final View ignoreView = cellInfo == null ? null : cellInfo.cell;
-//
-//        final Rect location = recycle != null ? recycle : new Rect();
-//
-//        // Find drop cell and convert into rectangle
-//        int[] dropCell = estimateDropCell(x - xOffset, y - yOffset,
-//                spanX, spanY, ignoreView, layout, mTempCell);
-//
-//        if (dropCell == null) {
-//            return null;
-//        }
-//
-//        layout.cellToPoint(dropCell[0], dropCell[1], mTempEstimate);
-//        location.left = mTempEstimate[0];
-//        location.top = mTempEstimate[1];
-//
-//        layout.cellToPoint(dropCell[0] + spanX, dropCell[1] + spanY, mTempEstimate);
-//        location.right = mTempEstimate[0];
-//        location.bottom = mTempEstimate[1];
-//
-//        return location;
-
         return null;
     }
 }

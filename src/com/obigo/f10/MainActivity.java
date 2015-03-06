@@ -48,7 +48,7 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
         mDeleteZone    = (DeleteZone) mDragLayer.findViewById(R.id.delete_zone);
 
         mDeleteZone.setMainActivity(this);
-        mDeleteZone.setDragController(mDragController);
+//        mDeleteZone.setDragController(mDragController);
 
         mWorkspace.setOnLongClickListener(this);
         mWorkspace.setMainActivity(this);
@@ -58,12 +58,12 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
         mWorkspace.setMainActivity(this);
 
         mDragController.setDragScoller(mWorkspace);
-        mDragController.setDragListener(mDeleteZone);
+//        mDragController.setDragListener(mDeleteZone);
         mDragController.setScrollView(mDragLayer);
         mDragController.setMoveTarget(mWorkspace);
 
         mDragController.addDropTarget(mWorkspace);
-        mDragController.addDropTarget(mDeleteZone);
+//        mDragController.addDropTarget(mDeleteZone);
     }
 
     @Override
@@ -89,6 +89,10 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
 
     @Override
     public boolean onLongClick(View v) {
+        if (v instanceof CellLayout && mWorkspace.getChildAt(0).equals(v)) {
+            return false;
+        }
+
         if (v instanceof CellLayout && mWorkspace.allowLongPress()) {
             mWorkspace.startDrag(v);
         }

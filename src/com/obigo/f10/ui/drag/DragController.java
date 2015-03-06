@@ -233,9 +233,11 @@ public class DragController {
         DragView dragView = mDragView = new DragView(mContext, b, registrationX, registrationY,
                 textureLeft, textureTop, textureWidth, textureHeight);
 
+        // modified by burke
         Paint alpha = new Paint();
         alpha.setAlpha(180);
         dragView.setPaint(alpha);
+
         dragView.show(mWindowToken, (int)mMotionDownX, (int)mMotionDownY);
     }
 

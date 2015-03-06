@@ -301,7 +301,7 @@ public class BkViewPager extends ViewGroup {
             mActivePointerId = ev.getPointerId(0);
             mAllowLongPress = true;
             mTouchState = mScroller.isFinished() ? TOUCH_STATE_REST : TOUCH_STATE_SCROLLING;
-            Log.d(TAG, "@@ inter down");
+//            Log.d(TAG, "@@ inter down");
             break;
         }
 
