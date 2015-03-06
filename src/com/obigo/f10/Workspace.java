@@ -7,9 +7,9 @@ package com.obigo.f10;
 
 import android.animation.Animator;
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.graphics.Rect;
 import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.Gravity;
@@ -337,43 +337,23 @@ public class Workspace extends BkViewPager implements OnCellDoubleTapListener, D
                 }
             }
 
-            final View expandLayout = mActivity.getExpandLayout();
+            View expandLayout = mActivity.getExpandLayout();
             FrameLayout.LayoutParams lp = new FrameLayout.LayoutParams(getWidth() / 2, mCurrentScreen == 0 ? getHeight() : getHeight() / 2);
 
-            if (mCurrentScreen == 0 || mDoubleTapPosition == OnCellDoubleTapListener.LEFT_TOP) {
-                lp.gravity = Gravity.LEFT | Gravity.TOP;
-            } else if (mDoubleTapPosition == OnCellDoubleTapListener.LEFT_BOTTOM) {
-                lp.gravity = Gravity.LEFT | Gravity.BOTTOM;
-            } else if (mDoubleTapPosition == OnCellDoubleTapListener.RIGHT_TOP) {
-                lp.gravity = Gravity.RIGHT | Gravity.TOP;
-            } else {
-                lp.gravity = Gravity.RIGHT | Gravity.BOTTOM;
-            }
+            setExpandLayoutGravity(expandLayout, lp);
+            setExpandLayoutPivot(expandLayout, view);
+            resetExpandLayoutScale(expandLayout);
 
-
-
-            Drawable drawable = new BitmapDrawable(getContext().getResources(), Capture.get(view));
-            expandLayout.setScaleX(1);
-            expandLayout.setScaleY(1);
-            expandLayout.setTranslationX(0);
-            expandLayout.setTranslationY(0);
-            expandLayout.setLayoutParams(lp);
-            expandLayout.setBackground(drawable);
+            final Bitmap capture = Capture.get(view);
+            expandLayout.setBackground(new BitmapDrawable(getContext().getResources(), capture));
             expandLayout.setVisibility(View.VISIBLE);
 
-            ResizeHelper.expand(expandLayout, mCurrentScreen, mDoubleTapPosition, getWidth(), getHeight(), new AnimatorEndListener(expandLayout) {
+            ResizeHelper.expand(expandLayout, mCurrentScreen, new AnimatorEndListener(expandLayout) {
                 @Override
                 public void onAnimationEnd(Animator animation) {
                     super.onAnimationEnd(animation);
                     setFullScreenMode(true);
-
-//                    if (expandLayout.getTag() != null) {
-//                        Bitmap bmp = ((Bitmap) expandLayout.getTag());
-//                        bmp.recycle();
-//                        bmp = null;
-////
-//                        expandLayout.setTag(null);
-//                    }
+                    capture.recycle();
 
                     mAnimating = false;
                 }
@@ -396,6 +376,46 @@ public class Workspace extends BkViewPager implements OnCellDoubleTapListener, D
         }
     }
 
+    private void setExpandLayoutGravity(View expandLayout, FrameLayout.LayoutParams lp) {
+        if (mCurrentScreen == 0 || mDoubleTapPosition == OnCellDoubleTapListener.LEFT_TOP) {
+            lp.gravity = Gravity.LEFT | Gravity.TOP;
+        } else if (mDoubleTapPosition == OnCellDoubleTapListener.LEFT_BOTTOM) {
+            lp.gravity = Gravity.LEFT | Gravity.BOTTOM;
+        } else if (mDoubleTapPosition == OnCellDoubleTapListener.RIGHT_TOP) {
+            lp.gravity = Gravity.RIGHT | Gravity.TOP;
+        } else {
+            lp.gravity = Gravity.RIGHT | Gravity.BOTTOM;
+        }
+
+        expandLayout.setLayoutParams(lp);
+    }
+
+    private void setExpandLayoutPivot(View expandLayout, View v) {
+        int width = 0;
+        int height = 0;
+
+        switch (mDoubleTapPosition) {
+        case OnCellDoubleTapListener.LEFT_BOTTOM:
+            height = v.getHeight();
+            break;
+        case OnCellDoubleTapListener.RIGHT_TOP:
+            width = v.getWidth();
+            break;
+        case OnCellDoubleTapListener.RIGHT_BOTTOM:
+            width = v.getWidth();
+            height = v.getHeight();
+            break;
+        }
+
+        expandLayout.setPivotX(width);
+        expandLayout.setPivotY(height);
+    }
+
+    private void resetExpandLayoutScale(View expandLayout) {
+        expandLayout.setScaleX(1);
+        expandLayout.setScaleY(1);
+    }
+
     private void setFullScreenMode(boolean mode) {
         setBeastSwipeMode(!mode);
         setEdgeEventMode(!mode);
@@ -409,7 +429,9 @@ public class Workspace extends BkViewPager implements OnCellDoubleTapListener, D
         mAnimating = true;
 
         int prevScreen = mCurrentScreen;
-        Drawable drawable = new BitmapDrawable(getContext().getResources(), Capture.get(getChildAt(mCurrentScreen)));
+        View view = getChildAt(mCurrentScreen);
+        final Bitmap capture = Capture.get(view);
+        final View expandLayout = mActivity.getExpandLayout();
 
         if (mCurrentScreen > 0 && mDoubleTapPosition == OnCellDoubleTapListener.LEFT_TOP) {
             mCurrentScreen = mCurrentScreen / 2 + 1;
@@ -421,23 +443,20 @@ public class Workspace extends BkViewPager implements OnCellDoubleTapListener, D
 
         setFullScreenMode(false);
 
-        final View expandLayout = mActivity.getExpandLayout();
-        expandLayout.setScaleX(1);
-        expandLayout.setScaleY(1);
-        expandLayout.setTranslationX(0);
-        expandLayout.setTranslationY(0);
-
         FrameLayout.LayoutParams lp = new FrameLayout.LayoutParams(getWidth(), getHeight());
-        expandLayout.setLayoutParams(lp);
-        expandLayout.setBackground(drawable);
+        resetExpandLayoutScale(expandLayout);
+        setExpandLayoutGravity(expandLayout, lp);
+        setExpandLayoutPivot(expandLayout, view);
+
+        expandLayout.setBackground(new BitmapDrawable(getContext().getResources(), capture));
         expandLayout.setVisibility(View.VISIBLE);
 
-//        traceTapPosition(mDoubleTapPosition);
-        ResizeHelper.collapse(expandLayout, prevScreen, mDoubleTapPosition, getWidth(), getHeight(), new AnimatorEndListener(expandLayout) {
+        ResizeHelper.collapse(expandLayout, prevScreen, new AnimatorEndListener(expandLayout) {
             @Override
             public void onAnimationEnd(Animator animation) {
                 super.onAnimationEnd(animation);
                 setFullScreenMode(false);
+                capture.recycle();
 
                 mAnimating = false;
             }
