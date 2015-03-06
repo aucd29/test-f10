@@ -402,11 +402,11 @@ public class BkViewPager extends ViewGroup {
 
 //                Log.d(TAG, "touch mEdgeMotionX " + mEdgeMotionX);
 //                Log.d(TAG, "touch mEdgeMotionY " + mEdgeMotionY);
-//                Log.d(TAG, "deltaX " + deltaX + ", deltaY " + deltaY);
+                Log.d(TAG, "deltaX " + deltaX + ", deltaY " + deltaY);
 
                 final int halfWidth = getWidth() / 2;
 
-                if (mEdgeEventMode && mEdgeMotionX < mEdgeMotion && deltaY > -30 && deltaY < 30) {
+                if (mEdgeEventMode && mEdgeMotionX < mEdgeMotion && deltaY > -30 && deltaY < 30 && deltaX < 0) {
                     onEdgeEvent(EDGE_EVENT_TO_LEFT);
                 } else if (mEdgeEventMode && mEdgeMotionY < mEdgeMotion && mEdgeMotionX > halfWidth && deltaY < -30) {
                     onEdgeEvent(EDGE_EVENT_TOP_RIGHT_TO_BOTTOM);

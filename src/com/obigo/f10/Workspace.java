@@ -260,10 +260,6 @@ public class Workspace extends BkViewPager implements OnCellDoubleTapListener, D
             if (mTouchState != TOUCH_STATE_SCROLLING && !mFullScreenMode) {
                 setPositionDoubleTap(ev.getX(), ev.getY());
             }
-
-//            if (mActivity != null && mActivity.isDeleteZone()) {
-//                mActivity.hideDeleteZone();
-//            }
             break;
         }
 
