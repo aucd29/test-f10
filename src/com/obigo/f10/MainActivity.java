@@ -173,6 +173,7 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
     public View getExpandLayout() {
         return mExpandLayout;
     }
+
     /*@Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.main, menu);

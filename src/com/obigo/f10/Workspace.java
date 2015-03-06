@@ -36,11 +36,11 @@ public class Workspace extends BkViewPager implements OnCellDoubleTapListener, D
     private static final String TAG = "Workspace";
 
     private MainActivity mActivity;
-    private int mMaxCellCount = 15;
 
+    private int mMaxCellCount = 15;
+    private int mDoubleTapPosition;
     private boolean mFullScreenMode = false;
     private boolean mAnimating = false;
-    private int mDoubleTapPosition;
 
     private DragController mDragController;
     private OnLongClickListener mLongClickListener;
@@ -67,7 +67,6 @@ public class Workspace extends BkViewPager implements OnCellDoubleTapListener, D
 
             if (view instanceof CellLayout) {
                 CellLayout cell = (CellLayout) view;
-                cell.setHalfMode(true);
                 cell.setOnCellDoubleTapListener(this);
                 cell.setTag("" + i);
 
@@ -350,6 +349,8 @@ public class Workspace extends BkViewPager implements OnCellDoubleTapListener, D
             } else {
                 lp.gravity = Gravity.RIGHT | Gravity.BOTTOM;
             }
+
+
 
             Drawable drawable = new BitmapDrawable(getContext().getResources(), Capture.get(view));
             expandLayout.setScaleX(1);

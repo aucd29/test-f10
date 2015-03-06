@@ -96,7 +96,7 @@ public class DeleteZone extends ImageView implements DropTarget, DragController.
 
     @Override
     public void onDrop(DragSource source, int x, int y, int xOffset, int yOffset, DragView dragView, Object dragInfo) {
-        Log.d(TAG, "@@ del zone onDrop");
+//        Log.d(TAG, "@@ del zone onDrop");
 
 //        final ItemInfo item = (ItemInfo) dragInfo;
 //
@@ -225,10 +225,6 @@ public class DeleteZone extends ImageView implements DropTarget, DragController.
             mHandleOutAnimation.setDuration(ANIMATION_DURATION);
         }
     }
-
-//    void setLauncher(Launcher launcher) {
-//        mLauncher = launcher;
-//    }
 
     void setMainActivity(MainActivity activity) {
         mActivity = activity;

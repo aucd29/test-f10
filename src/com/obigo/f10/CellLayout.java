@@ -20,8 +20,6 @@ import com.obigo.f10.ui.events.OnIgnoreGestureListener;
 public class CellLayout extends ViewGroup implements OnDoubleTapListener {
     private static final String TAG = "CellLayout";
 
-    private boolean mPortrait;
-    private boolean mHalfMode = false;
     private GestureDetector mDectector;
     private OnCellDoubleTapListener mDblTapListener;
 
@@ -36,10 +34,10 @@ public class CellLayout extends ViewGroup implements OnDoubleTapListener {
     public CellLayout(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
 
-//        setAlwaysDrawnWithCacheEnabled(false);
         setDrawingCacheEnabled(false);
         setFocusable(true);
         setFocusableInTouchMode(true);
+
         mDectector = new GestureDetector(getContext(), new OnIgnoreGestureListener());
         mDectector.setOnDoubleTapListener(this);
     }
@@ -48,11 +46,6 @@ public class CellLayout extends ViewGroup implements OnDoubleTapListener {
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         int widthSpecMode = MeasureSpec.getMode(widthMeasureSpec);
         int widthSpecSize =  MeasureSpec.getSize(widthMeasureSpec);
-
-//        // added burke
-//        if (mHalfMode) {
-//            widthSpecSize /= 2;
-//        }
 
         int heightSpecMode = MeasureSpec.getMode(heightMeasureSpec);
         int heightSpecSize =  MeasureSpec.getSize(heightMeasureSpec);
@@ -65,29 +58,12 @@ public class CellLayout extends ViewGroup implements OnDoubleTapListener {
 
         for (int i = 0; i < count; i++) {
             View child = getChildAt(i);
+
             LayoutParams lp = (LayoutParams) child.getLayoutParams();
             lp.width = widthSpecSize;
-//            lp.height = heightSpecSize / 2;
             lp.height = heightSpecSize;
+
             child.setLayoutParams(lp);
-
-//            if (mPortrait) {
-//                lp.setup(cellWidth, cellHeight, mWidthGap, mHeightGap, shortAxisStartPadding, longAxisStartPadding);
-//            } else {
-//                lp.setup(cellWidth, cellHeight, mWidthGap, mHeightGap, longAxisStartPadding, shortAxisStartPadding);
-//            }
-//
-//            if (lp.regenerateId) {
-//                child.setId(((getId() & 0xFF) << 16) | (lp.cellX & 0xFF) << 8 | (lp.cellY & 0xFF));
-//                lp.regenerateId = false;
-//            }
-
-//            Log.d(TAG, "lp width " + lp.width);
-//            Log.d(TAG, "lp height " + lp.height);
-
-//            int childWidthMeasureSpec = MeasureSpec.makeMeasureSpec(lp.width, MeasureSpec.EXACTLY);
-//            int childheightMeasureSpec = MeasureSpec.makeMeasureSpec(lp.height, MeasureSpec.EXACTLY);
-
             child.measure(widthMeasureSpec, heightMeasureSpec);
         }
 
@@ -102,15 +78,6 @@ public class CellLayout extends ViewGroup implements OnDoubleTapListener {
         for (int i = 0; i < count; i++) {
             View child = getChildAt(i);
             if (child.getVisibility() != GONE) {
-//                CellLayout.LayoutParams lp = (CellLayout.LayoutParams) child.getLayoutParams();
-//
-//                int childLeft = lp.x;
-//                int childTop = lp.y;
-//                Log.d(TAG, "cell - width " + child.getMeasuredWidth());
-//                Log.d(TAG, "cell - height " + child.getMeasuredHeight());
-
-//                Log.d(TAG, "left 0, top " + childTop + ", width " + child.getMeasuredWidth() + ", height " + (childTop + child.getMeasuredHeight()));
-
                 child.layout(0, childTop, child.getMeasuredWidth(), childTop + child.getMeasuredHeight());
                 childTop += child.getMeasuredHeight();
             }
@@ -125,13 +92,8 @@ public class CellLayout extends ViewGroup implements OnDoubleTapListener {
         case MotionEvent.ACTION_MOVE:
             return true;
         case MotionEvent.ACTION_DOWN:
-
-//            Log.d(TAG, "    @@ inter down");
-//            super.onInterceptTouchEvent(ev);
             break;
         case MotionEvent.ACTION_UP:
-//            Log.d(TAG, "    @@ inter up");
-//            super.onInterceptTouchEvent(ev);
             break;
         }
 
@@ -157,10 +119,6 @@ public class CellLayout extends ViewGroup implements OnDoubleTapListener {
         return super.onTouchEvent(ev);
     }
 
-    public void setHalfMode(boolean half) {
-        mHalfMode = half;
-    }
-
     ////////////////////////////////////////////////////////////////////////////////////
     //
     // interface OnCellDoubleTapListener
@@ -179,7 +137,7 @@ public class CellLayout extends ViewGroup implements OnDoubleTapListener {
 
     @Override
     public boolean onDoubleTap(MotionEvent e) {
-        Log.d(TAG, "@@ cell on double tap");
+//        Log.d(TAG, "@@ cell on double tap");
 
         if (mDblTapListener != null) {
             mDblTapListener.onDoubleTap(this);

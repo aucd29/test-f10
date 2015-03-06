@@ -259,6 +259,7 @@ public class DragController {
         if (color != 0) {
             v.destroyDrawingCache();
         }
+
         v.buildDrawingCache();
         Bitmap cacheBitmap = v.getDrawingCache();
         if (cacheBitmap == null) {
