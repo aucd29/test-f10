@@ -7,7 +7,6 @@ package com.obigo.f10;
 
 import android.content.Context;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.GestureDetector;
 import android.view.GestureDetector.OnDoubleTapListener;
 import android.view.MotionEvent;
@@ -90,7 +89,8 @@ public class CellLayout extends ViewGroup implements OnDoubleTapListener {
 
         switch (action) {
         case MotionEvent.ACTION_MOVE:
-            return true;
+//            return true;
+            break;
         case MotionEvent.ACTION_DOWN:
             break;
         case MotionEvent.ACTION_UP:
@@ -121,19 +121,13 @@ public class CellLayout extends ViewGroup implements OnDoubleTapListener {
 
     ////////////////////////////////////////////////////////////////////////////////////
     //
-    // interface OnCellDoubleTapListener
+    // OnCellDoubleTapListener
     //
     ////////////////////////////////////////////////////////////////////////////////////
 
     public void setOnCellDoubleTapListener(OnCellDoubleTapListener l) {
         mDblTapListener = l;
     }
-
-    ////////////////////////////////////////////////////////////////////////////////////
-    //
-    // OnDoubleTapListener
-    //
-    ////////////////////////////////////////////////////////////////////////////////////
 
     @Override
     public boolean onDoubleTap(MotionEvent e) {

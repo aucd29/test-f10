@@ -237,6 +237,7 @@ public class DragController {
         Paint alpha = new Paint();
         alpha.setAlpha(180);
         dragView.setPaint(alpha);
+        //
 
         dragView.show(mWindowToken, (int)mMotionDownX, (int)mMotionDownY);
     }

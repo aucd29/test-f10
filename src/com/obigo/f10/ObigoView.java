@@ -6,19 +6,20 @@
 package com.obigo.f10;
 
 import android.content.Context;
-import android.graphics.Bitmap;
-import android.graphics.Canvas;
 import android.util.AttributeSet;
+import android.view.GestureDetector;
+import android.view.GestureDetector.OnDoubleTapListener;
 import android.view.MotionEvent;
 import android.webkit.WebView;
 
-public class ObigoView extends WebView {
-//public class ObigoView extends FrameLayout {
-    private boolean mUseScreenCache = false;
-    public boolean mNeedCapture = false;
+import com.obigo.f10.ui.events.OnCellDoubleTapListener;
+import com.obigo.f10.ui.events.OnIgnoreGestureListener;
 
-    Bitmap mCacheBt = null;
-    Canvas mCacheCanvas = null;
+public class ObigoView extends WebView implements OnDoubleTapListener {
+    private static final String TAG = "ObigoView";
+
+    private GestureDetector mDectector;
+    private OnCellDoubleTapListener mDblTapListener;
 
     public ObigoView(Context context) {
         super(context);
@@ -35,75 +36,93 @@ public class ObigoView extends WebView {
         initLayout();
     }
 
-    protected void initLayout() {
-//        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT);
-//        lp.weight = 1;
-//        setLayoutParams(lp);
+    private static int COUNT = 0;
 
-        loadUrl("file:///android_asset/dumy.html");
-//        loadUrl("http://sarangnamu.net");
+    protected void initLayout() {
+        setDrawingCacheEnabled(false);
+        setFocusable(true);
+        setFocusableInTouchMode(true);
+
+        setHapticFeedbackEnabled(false);
+        setVerticalScrollBarEnabled(false);
+        setHorizontalScrollBarEnabled(false);
+
+        getSettings().setSupportMultipleWindows(false);
+        getSettings().setJavaScriptEnabled(true);
+        getSettings().setBuiltInZoomControls(false);
+        getSettings().setSupportZoom(false);
+        getSettings().setJavaScriptCanOpenWindowsAutomatically(true);
+
+//        setBackgroundColor(Color.BLACK);
+        mDectector = new GestureDetector(getContext(), new OnIgnoreGestureListener());
+        mDectector.setOnDoubleTapListener(this);
+
+        switch (COUNT++) {
+        case 0:
+            loadUrl("file:///android_asset/dumy.html");
+            break;
+        case 1:
+            loadUrl("http://m.daum.net");
+            break;
+        case 2:
+            loadUrl("http://m.naver.com");
+            break;
+        }
+
+    }
+
+//    @Override
+//    public boolean onInterceptTouchEvent(android.view.MotionEvent ev) {
+//        switch (ev.getAction()) {
+//        case MotionEvent.ACTION_DOWN:
+//            Log.d(TAG, "## inter down");
+//            return false;
+//        case MotionEvent.ACTION_UP:
+//            Log.d(TAG, "## inter up");
+//            return false;
+//        }
+//
+//        return true;
+//    }
+
+    @Override
+    public boolean onTouchEvent(MotionEvent ev) {
+        if (mDectector != null) {
+            mDectector.onTouchEvent(ev);
+        }
+
+//        switch (ev.getAction()) {
+//        case MotionEvent.ACTION_DOWN:
+//            Log.d(TAG, "## touch down");
+//            break;
+//        case MotionEvent.ACTION_UP:
+//            Log.d(TAG, "## touch up");
+//            break;
+//        }
+
+        return super.onTouchEvent(ev);
+    }
+
+    public void setOnCellDoubleTapListener(OnCellDoubleTapListener l) {
+        mDblTapListener = l;
     }
 
     @Override
-    public boolean onInterceptTouchEvent(android.view.MotionEvent ev) {
-        if (ev.getAction() == MotionEvent.ACTION_DOWN) {
-            mNeedCapture = true;
+    public boolean onDoubleTap(MotionEvent e) {
+        if (mDblTapListener != null) {
+            mDblTapListener.onDoubleTap(this);
         }
 
-        return true;
+        return false;
     }
 
-//    @Override
-//    protected void dispatchDraw(Canvas canvas) {
-//        super.dispatchDraw(canvas);
-//
-//        if (mUseScreenCache == false) {
-//            return;
-//        }
-//    }
+    @Override
+    public boolean onDoubleTapEvent(MotionEvent e) {
+        return false;
+    }
 
-//    @Override
-//    protected void onDraw (Canvas canvas) {
-//        if (mUseScreenCache == false) {
-//            super.onDraw(canvas);
-//            return;
-//        }
-//
-//        Workspace ws = (Workspace) getParent();
-//
-////        if (ws.isFastDraw() && !mLoading && !mNeedCapture) {
-//        if (!mNeedCapture) {
-//            super.onDraw(canvas);
-////            if (!mFirstTouch) {
-////                drawCacheCavas(canvas);
-////                mFirstTouch = false;
-////            }
-////        } else if (mLoading || mNeedCapture) {
-//        } else if (mNeedCapture) {
-//            super.onDraw(canvas);
-//            drawCacheCavas(canvas);
-//            mNeedCapture = false;
-//        } else if (mCacheBt != null && mCacheCanvas != null) {
-//            canvas.drawBitmap(mCacheBt, 0, 0, null);
-//        } else {
-//            super.onDraw(canvas);
-//            drawCacheCavas(canvas);
-//        }
-//    }
-
-//    private void drawCacheCavas(Canvas canvas) {
-//        if (mCacheBt == null) {
-//            Bitmap.Config c = Bitmap.Config.RGB_565;
-//            mCacheBt = Bitmap.createBitmap(getWidth(), getHeight(), c);
-//        }
-//
-//        if (mCacheCanvas == null) {
-//            mCacheCanvas = new Canvas();
-//            mCacheCanvas.setBitmap(mCacheBt);
-//        }
-//
-////        super.onDraw(mCacheCanvas);
-//
-//        canvas.drawBitmap(mCacheBt, 0, 0, null);
-//    }
+    @Override
+    public boolean onSingleTapConfirmed(MotionEvent e) {
+        return false;
+    }
 }

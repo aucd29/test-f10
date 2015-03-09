@@ -68,17 +68,15 @@ public class Workspace extends BkViewPager implements OnCellDoubleTapListener, D
             if (view instanceof CellLayout) {
                 CellLayout cell = (CellLayout) view;
                 cell.setOnCellDoubleTapListener(this);
-                cell.setTag("" + i);
 
-                TextView tv = new TextView(getContext());
-                tv.setText("pos " + i);
-                cell.addView(tv);
-
-//                if (i != 0) {
-//                    ObigoView oview = new ObigoView(getContext());
-//                    cell.addView(oview);
-////                        Log.d(TAG, "added obigo view " + i + " : " + j);
-//                }
+                if (i == 0 || i > 3) {
+                    TextView tv = new TextView(getContext());
+                    tv.setText("page " + i);
+                } else {
+                    ObigoView oview = new ObigoView(getContext());
+                    oview.setOnCellDoubleTapListener(this);
+                    cell.addView(oview);
+                }
             }
 
             int x = i % 5;
@@ -111,16 +109,16 @@ public class Workspace extends BkViewPager implements OnCellDoubleTapListener, D
     @Override
     public void setOnLongClickListener(OnLongClickListener l) {
         mLongClickListener = l;
+
         final int count = getChildCount();
         for (int i = 0; i < count; i++) {
             ViewGroup view = (ViewGroup) getChildAt(i);
             view.setOnLongClickListener(l);
 
-//            int cnt = view.getChildCount();
-//            Log.d(TAG, "@@ cnt  " + cnt);
-//            for (int j=0; j<cnt; ++j) {
-//                view.getChildAt(j).setOnLongClickListener(l);
-//            }
+            int cnt = view.getChildCount();
+            for (int j=0; j<cnt; ++j) {
+                view.getChildAt(j).setOnLongClickListener(l);
+            }
         }
     }
 
@@ -326,6 +324,10 @@ public class Workspace extends BkViewPager implements OnCellDoubleTapListener, D
     public void onDoubleTap(View view) {
         if (!mFullScreenMode && !mActivity.isWorkspaceLocked()) {
             mAnimating = true;
+
+            if (view instanceof ObigoView) {
+                view = (View) view.getParent();
+            }
 
             for (int i=0; i<getChildCount(); ++i) {
                 if (getChildAt(i).equals(view)) {

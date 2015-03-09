@@ -9,6 +9,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
+import android.view.HapticFeedbackConstants;
 import android.view.View;
 import android.view.View.OnLongClickListener;
 import android.widget.FrameLayout;
@@ -23,7 +24,7 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
 
     private static final int APPLIST_MOVE_X = -400;
     private static final int SETTING_MOVE_Y = -200;
-    private static final int DELZONE_MOVE_Y = -40;
+//    private static final int DELZONE_MOVE_Y = -40;
 
     private DragController mDragController;
 
@@ -65,6 +66,16 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
 
         mDragController.addDropTarget(mWorkspace);
 //        mDragController.addDropTarget(mDeleteZone);
+
+//        View decorView = getWindow().getDecorView();
+//        int uiOptions = View.SYSTEM_UI_FLAG_FULLSCREEN;
+//        decorView.setSystemUiVisibility(uiOptions);
+
+//        requestWindowFeature(Window.FEATURE_NO_TITLE);
+//        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
+//            WindowManager.LayoutParams.FLAG_FULLSCREEN);
+//        ActionBar actionBar = getActionBar();
+//        actionBar.hide();
     }
 
     @Override
@@ -98,11 +109,24 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
             return false;
         }
 
-        if (v instanceof CellLayout && mWorkspace.allowLongPress()) {
+        Log.d(TAG, "@@ ACTIVITY LONG CLICK");
+        if (v instanceof ObigoView && mWorkspace.allowLongPress()) {
+            Log.d(TAG, "@@ OBIGO VIEW LONG CLICK");
+
+            View view = (View) v.getParent();
+            v.cancelLongPress();
+            v.clearFocus();
+
+            mWorkspace.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS,
+                    HapticFeedbackConstants.FLAG_IGNORE_VIEW_SETTING);
+            mWorkspace.startDrag(view);
+        } else if (v instanceof CellLayout && mWorkspace.allowLongPress()) {
+            Log.d(TAG, "@@ CELL LAYOUT LONG CLICK");
+
             mWorkspace.startDrag(v);
         }
 
-        return false;
+        return true;
     }
 
     @Override
